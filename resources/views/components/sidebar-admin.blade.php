@@ -80,11 +80,15 @@
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-4 px-5 py-3 rounded-xl
-                  text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600 transition">
-            <i class="fa-solid fa-toolbox"></i>
-            Data Barang
+        <a href="{{ route('admin.dataalat.index') }}"
+        class="flex items-center gap-4 px-5 py-3 rounded-xl transition
+        {{ Route::is('admin.dataalat.*') 
+                ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
+                : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
+
+            <i class="fa-solid fa-layer-group"></i>
+            Data Alat
+
         </a>
 
         <a href="#"

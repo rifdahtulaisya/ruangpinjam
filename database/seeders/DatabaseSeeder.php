@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         AdminSeeder::class,
         PetugasSeeder::class,
         PeminjamSeeder::class,
+        AlatSeeder::class,
     ]);
 }
 

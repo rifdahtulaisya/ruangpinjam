@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DataAlatController;
 use App\Http\Controllers\Admin\DataPeminjamController;
 use App\Http\Controllers\Admin\DataPerkelasController;
 use App\Http\Controllers\Admin\KategoriController;
@@ -10,7 +11,7 @@ Route::get('/', function () {
     return view('landing');
 });
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
  Route::get('dashboard', function () {
         return view('admin.dashboard');
@@ -19,20 +20,22 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('datapeminjam', DataPeminjamController::class);
     Route::get('dataperkelas', [DataPerkelasController::class, 'index'])->name('dataperkelas.index');
     Route::resource('datakategori', KategoriController::class);
+    Route::resource('dataalat', DataAlatController::class);
 });
 
-Route::middleware(['auth', 'role:petugas'])->group(function () {
 
-    Route::get('/petugas/dashboard', function () {
+Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
+
+    Route::get('dashboard', function () {
         return view('petugas.dashboard');
-    })->name('petugas.dashboard');
+    })->name('dashboard');
 });
 
-Route::middleware(['auth', 'role:peminjam'])->group(function () {
+Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
 
-    Route::get('/peminjam/dashboard', function () {
+    Route::get('dashboard', function () {
         return view('peminjam.dashboard');
-    })->name('peminjam.dashboard');
+    })->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {

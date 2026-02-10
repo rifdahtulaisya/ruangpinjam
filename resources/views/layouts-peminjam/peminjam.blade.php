@@ -4,7 +4,7 @@
      <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Admin Dashboard</title>
+    <title>Peminjam Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -19,10 +19,10 @@
 
 <body class="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-purple-100">
 <!-- Sidebar -->
-<x-sidebar-admin />
+<x-sidebar-peminjam />
 
 <!-- Navbar -->
-<x-navbar-admin />
+<x-navbar-peminjam />
 <div id="overlay"
          class="fixed inset-0 bg-black/30 z-30 hidden md:hidden">
     </div>
