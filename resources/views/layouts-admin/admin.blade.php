@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Admin Dashboard</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+     {{-- Include link (CSS, font, dsb) --}}
+    @include('layouts-admin.partials.link')
+    <!-- DataTables CSS -->
+<link href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" rel="stylesheet">
+
+<!-- DataTables Responsive -->
+<link href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.dataTables.min.css" rel="stylesheet">
+
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-purple-100">
+
+
+
+{{-- HEADER admin --}}
+    @include('layouts-admin.partials.header')
+
+ {{-- KONTEN UTAMA --}}
+      <main class="pt-8 pb-6 px-4 md:px-6 relative top-[90px] mb-24 md:ml-[320px] md:mr-3 md:rounded-3xl transition-all duration-300 flex flex-col max-w-full">
+    @yield('content')
+</main>
+
+    {{-- FOOTER USER --}}
+    @include('layouts-admin.partials.footer')
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('chartPeminjaman');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul'],
+        datasets: [{
+            label: 'Jumlah Peminjaman',
+            data: [12, 19, 10, 15, 22, 18, 25],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 4,
+            pointBackgroundColor: '#3b82f6'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+
+
+<script>
+function confirmLogout() {
+
+    Swal.fire({
+        title: 'Logout?',
+        text: "Anda akan keluar dari sistem",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#6366f1',
+        cancelButtonColor: '#ef4444',
+        confirmButtonText: 'Ya, Logout',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            document.getElementById('logout-form').submit();
+
+        }
+
+    });
+
+}
+</script>
+
+<script>
+
+const burger = document.getElementById('burgerBtn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+
+burger.addEventListener('click', () => {
+
+    sidebar.classList.toggle('-translate-x-full');
+
+    overlay.classList.toggle('hidden');
+
+});
+
+overlay.addEventListener('click', () => {
+
+    sidebar.classList.add('-translate-x-full');
+
+    overlay.classList.add('hidden');
+
+});
+
+</script>
+
+
+
+
+
+</body>
+</html>
