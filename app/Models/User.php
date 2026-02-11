@@ -76,6 +76,12 @@ public function getTingkatAttribute()
     return $parts[0] ?? null;
 }
 
+// Di App\Models\User.php
+public function peminjaman()
+{
+    return $this->hasMany(Peminjaman::class);
+}
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -33,7 +33,8 @@
     @yield('content')
 </main>
 
-    <footer class="mt-10 px-6 py-4 text-sm text-slate-500 flex justify-between items-center">
+    <footer class="mt-10 px-6 py-4 text-sm text-slate-500 flex justify-between items-center
+               md:ml-[320px] md:mr-3 transition-all duration-300">
 
     <div>
         © {{ date('Y') }} Sarprasku. All rights reserved.

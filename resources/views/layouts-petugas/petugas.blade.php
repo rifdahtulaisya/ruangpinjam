@@ -4,14 +4,10 @@
      <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Peminjam Dashboard</title>
+    <title>Petugas Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <!-- SweetAlert2 CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- DataTables CSS -->
 <link href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" rel="stylesheet">
@@ -23,14 +19,14 @@
 
 <body class="min-h-screen relative overflow-x-hidden fixed inset-0 -z-20
     bg-gradient-to-br
-    from-blue-200
-    via-blue-300
-    to-indigo-400">
+    from-emerald-200
+    via-emerald-300
+    to-teal-400">
 <!-- Sidebar -->
-<x-sidebar-peminjam />
+<x-sidebar-petugas />
 
 <!-- Navbar -->
-<x-navbar-peminjam />
+<x-navbar-petugas />
 <div id="overlay"
          class="fixed inset-0 bg-black/30 z-30 hidden md:hidden">
     </div>
@@ -59,8 +55,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 const ctx = document.getElementById('chartPeminjaman');
 
