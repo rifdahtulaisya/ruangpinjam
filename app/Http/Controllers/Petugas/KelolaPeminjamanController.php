@@ -19,7 +19,7 @@ class KelolaPeminjamanController extends Controller
                 return $query->where('status', $status);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         $counts = [

@@ -108,12 +108,7 @@ public function kembalikan($id)
         // PERUBAHAN: Ubah status ke menunggu_pengembalian TANPA mengubah stok
         $peminjaman->status = 'menunggu_pengembalian';
         $peminjaman->save(); // Stok TIDAK berubah di sini!
-        
-        \Log::info("Pengajuan pengembalian #{$id} oleh peminjam", [
-            'user_id' => Auth::id(),
-            'status_sebelum' => 'dipinjam',
-            'status_setelah' => 'menunggu_pengembalian'
-        ]);
+    
         
         return response()->json([
             'success' => true,
@@ -121,7 +116,7 @@ public function kembalikan($id)
         ]);
         
     } catch (\Exception $e) {
-        \Log::error('Error kembalikan: ' . $e->getMessage());
+
         return response()->json([
             'success' => false,
             'message' => 'Terjadi kesalahan: ' . $e->getMessage()

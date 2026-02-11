@@ -81,7 +81,6 @@ public function peminjaman()
 {
     return $this->hasMany(Peminjaman::class);
 }
-
     /**
      * The attributes that should be hidden for serialization.
      *
