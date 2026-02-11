@@ -63,10 +63,17 @@
                                     Semua Status
                                 </div>
 
+                                <!-- Di blade peminjam -->
                                 <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-yellow-50 cursor-pointer"
-                                    data-value="menunggu" data-label="Menunggu Persetujuan">
+                                    data-value="menunggu_peminjaman" data-label="Menunggu Persetujuan">
                                     <i class="fas fa-clock text-yellow-500 w-4"></i>
                                     Menunggu Persetujuan
+                                </div>
+
+                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 cursor-pointer"
+                                    data-value="menunggu_pengembalian" data-label="Menunggu Konfirmasi Pengembalian">
+                                    <i class="fas fa-hourglass-half text-blue-500 w-4"></i>
+                                    Menunggu Konfirmasi Pengembalian
                                 </div>
 
                                 <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 cursor-pointer"
@@ -156,22 +163,25 @@
                                     </div>
                                 </td>
                                 <td class="py-4 px-6">
+                                    
                                     @php
-                                        $statusColors = [
-                                            'menunggu' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                            'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
-                                            'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
-                                            'ditolak' => 'bg-red-100 text-red-800 border-red-200',
-                                            'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
-                                        ];
-                                        $statusIcons = [
-                                            'menunggu' => 'clock',
-                                            'dipinjam' => 'tools',
-                                            'selesai' => 'check-circle',
-                                            'ditolak' => 'times-circle',
-                                            'ditegur' => 'exclamation-triangle',
-                                        ];
-                                    @endphp
+    $statusColors = [
+        'menunggu_peminjaman' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        'menunggu_pengembalian' => 'bg-blue-100 text-blue-800 border-blue-200',
+        'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
+        'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
+        'ditolak' => 'bg-red-100 text-red-800 border-red-200',
+        'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
+    ];
+    $statusIcons = [
+        'menunggu_peminjaman' => 'clock',
+        'menunggu_pengembalian' => 'hourglass-half',
+        'dipinjam' => 'hand-holding',
+        'selesai' => 'check-circle',
+        'ditolak' => 'times-circle',
+        'ditegur' => 'exclamation-triangle',
+    ];
+@endphp
                                     <span
                                         class="px-3 py-1 rounded-full text-sm font-medium border flex items-center gap-1 w-fit {{ $statusColors[$peminjaman->status] ?? 'bg-gray-100 text-gray-800' }}">
                                         <i class="fas fa-{{ $statusIcons[$peminjaman->status] ?? 'circle' }} text-xs"></i>
@@ -179,39 +189,46 @@
                                     </span>
                                 </td>
                                 <td class="py-4 px-6">
-    <!-- Action Buttons -->
-    <div class="flex gap-2 pt-3 border-t border-slate-100">
-        <button onclick="showDetailModal({{ $peminjaman->id }})"
-            class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-1">
-            <i class="fas fa-eye text-xs"></i>
-            <span class="text-sm">Detail</span>
-        </button>
-        
-        @if ($peminjaman->status == 'dipinjam')
-            <button onclick="showKembalikanModal({{ $peminjaman->id }})"
-                class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
-                <i class="fas fa-upload text-xs"></i>
-                <span class="text-sm">Kembalikan</span>
-            </button>
-        @elseif ($peminjaman->status == 'menunggu')
-            <span
-                class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium border border-yellow-200 flex items-center justify-center gap-1">
-                <i class="fas fa-clock text-xs"></i>
-                <span>Menunggu</span>
-            </span>
-        @endif
-    </div>
-</td>
-<script>
-    // Test function - hapus setelah berhasil
-console.log('Script loaded successfully');
+                                    <!-- Action Buttons -->
+                                    <div class="flex gap-2 pt-3 border-t border-slate-100">
+                                        <button onclick="showDetailModal({{ $peminjaman->id }})"
+                                            class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-1">
+                                            <i class="fas fa-eye text-xs"></i>
+                                            <span class="text-sm">Detail</span>
+                                        </button>
 
-// Test jika button diklik
-window.testKembalikan = function(id) {
-    console.log('Button clicked for ID:', id);
-    showKembalikanModal(id);
-}
-</script>
+                                        <!-- Di blade peminjam (di bagian action buttons) -->
+                                        @if ($peminjaman->status == 'dipinjam')
+                                            <button onclick="showKembalikanModal({{ $peminjaman->id }})"
+                                                class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
+                                                <i class="fas fa-upload text-xs"></i>
+                                                <span class="text-sm">Kembalikan</span>
+                                            </button>
+                                        @elseif ($peminjaman->status == 'menunggu_peminjaman')
+                                            <span
+                                                class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium border border-yellow-200 flex items-center justify-center gap-1">
+                                                <i class="fas fa-clock text-xs"></i>
+                                                <span>Menunggu Persetujuan</span>
+                                            </span>
+                                        @elseif ($peminjaman->status == 'menunggu_pengembalian')
+                                            <span
+                                                class="flex-1 px-3 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium border border-blue-200 flex items-center justify-center gap-1">
+                                                <i class="fas fa-hourglass-half text-xs"></i>
+                                                <span>Menunggu Konfirmasi</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <script>
+                                    // Test function - hapus setelah berhasil
+                                    console.log('Script loaded successfully');
+
+                                    // Test jika button diklik
+                                    window.testKembalikan = function(id) {
+                                        console.log('Button clicked for ID:', id);
+                                        showKembalikanModal(id);
+                                    }
+                                </script>
                             </tr>
                         @empty
                             <tr>
@@ -251,14 +268,15 @@ window.testKembalikan = function(id) {
                                 </div>
 
                                 @php
-                                    $statusColors = [
-                                        'menunggu' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                        'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
-                                        'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
-                                        'ditolak' => 'bg-red-100 text-red-800 border-red-200',
-                                        'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
-                                    ];
-                                @endphp
+    $statusColors = [
+        'menunggu_peminjaman' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        'menunggu_pengembalian' => 'bg-blue-100 text-blue-800 border-blue-200',
+        'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
+        'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
+        'ditolak' => 'bg-red-100 text-red-800 border-red-200',
+        'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
+    ];
+@endphp
                                 <span
                                     class="px-2 py-1 rounded-full text-xs font-medium border {{ $statusColors[$peminjaman->status] ?? 'bg-gray-100 text-gray-800' }}">
                                     {{ ucfirst($peminjaman->status) }}
@@ -297,27 +315,27 @@ window.testKembalikan = function(id) {
                                 </div>
 
                                 <!-- Action Buttons -->
-<div class="flex gap-2 pt-3 border-t border-slate-100">
-    <button onclick="showDetailModal({{ $peminjaman->id }})"
-        class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-1">
-        <i class="fas fa-eye text-xs"></i>
-        <span class="text-sm">Detail</span>
-    </button>
-    
-    @if ($peminjaman->status == 'dipinjam')
-        <button onclick="showKembalikanModal({{ $peminjaman->id }})"
-            class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
-            <i class="fas fa-upload text-xs"></i>
-            <span class="text-sm">Kembalikan</span>
-        </button>
-    @elseif ($peminjaman->status == 'menunggu')
-        <span
-            class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium border border-yellow-200 flex items-center justify-center gap-1">
-            <i class="fas fa-clock text-xs"></i>
-            <span>Menunggu</span>
-        </span>
-    @endif
-</div>
+                                <div class="flex gap-2 pt-3 border-t border-slate-100">
+                                    <button onclick="showDetailModal({{ $peminjaman->id }})"
+                                        class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-1">
+                                        <i class="fas fa-eye text-xs"></i>
+                                        <span class="text-sm">Detail</span>
+                                    </button>
+
+                                    @if ($peminjaman->status == 'dipinjam')
+                                        <button onclick="showKembalikanModal({{ $peminjaman->id }})"
+                                            class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
+                                            <i class="fas fa-upload text-xs"></i>
+                                            <span class="text-sm">Kembalikan</span>
+                                        </button>
+                                    @elseif ($peminjaman->status == 'menunggu')
+                                        <span
+                                            class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium border border-yellow-200 flex items-center justify-center gap-1">
+                                            <i class="fas fa-clock text-xs"></i>
+                                            <span>Menunggu</span>
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @empty

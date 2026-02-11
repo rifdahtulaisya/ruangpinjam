@@ -17,12 +17,12 @@ class Peminjaman extends Model
         'nama_alat',
         'tanggal_peminjaman',
         'tanggal_pengembalian',
-        'tanggal_dikembalikan', // Sesuaikan dengan kolom di database
+        'tanggal_dikembalikan',
         'status',
         'keterangan',
         'metode_pengembalian',
         'foto_bukti',
-        'waktu_pengembalian', // Tambahkan ini
+        'waktu_pengembalian',
     ];
 
     protected $casts = [
@@ -30,11 +30,18 @@ class Peminjaman extends Model
         'tanggal_peminjaman' => 'date',
         'tanggal_pengembalian' => 'date',
         'tanggal_dikembalikan' => 'datetime',
-        'waktu_pengembalian' => 'datetime', // atau 'string' tergantung kebutuhan
+        'waktu_pengembalian' => 'datetime',
     ];
 
-    // Validasi status
-    public static $statuses = ['menunggu', 'ditolak', 'dipinjam', 'selesai', 'ditegur'];
+    // PERUBAHAN: Pisahkan status untuk peminjaman dan pengembalian
+    public static $statuses = [
+        'menunggu_peminjaman',  // Menunggu persetujuan peminjaman
+        'menunggu_pengembalian', // Menunggu konfirmasi pengembalian
+        'ditolak',
+        'dipinjam',
+        'selesai',
+        'ditegur'
+    ];
 
     // Setter untuk status dengan auto update stok
     public function setStatusAttribute($value)
@@ -60,16 +67,16 @@ class Peminjaman extends Model
             return;
         }
 
-        // Jika status berubah dari 'menunggu' atau 'ditolak' ke 'dipinjam'
-        if (($oldStatus === 'menunggu' || $oldStatus === 'ditolak') && $newStatus === 'dipinjam') {
-            // Kurangi stok saat alat dipinjam
+        // Jika status berubah ke 'dipinjam' (disetujui)
+        if ($newStatus === 'dipinjam') {
+            // Kurangi stok saat alat disetujui untuk dipinjam
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->decrement('stok');
             }
         }
         
-        // Jika status berubah dari 'dipinjam' ke 'selesai'
-        elseif ($oldStatus === 'dipinjam' && $newStatus === 'selesai') {
+        // Jika status berubah ke 'selesai' (pengembalian dikonfirmasi)
+        elseif ($newStatus === 'selesai') {
             // Tambah stok kembali saat alat selesai/dikembalikan
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->increment('stok');
@@ -81,19 +88,11 @@ class Peminjaman extends Model
             }
         }
         
-        // Jika status berubah dari 'dipinjam' ke 'ditolak' (jika ada pembatalan)
-        elseif ($oldStatus === 'dipinjam' && $newStatus === 'ditolak') {
+        // Jika status dibatalkan dari 'dipinjam' ke status lain
+        elseif ($oldStatus === 'dipinjam' && $newStatus !== 'selesai') {
             // Kembalikan stok karena dibatalkan setelah dipinjam
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->increment('stok');
-            }
-        }
-        
-        // Jika status berubah dari 'selesai' ke status lain (rollback)
-        elseif ($oldStatus === 'selesai' && $newStatus !== 'selesai') {
-            // Kurangi stok kembali karena rollback dari selesai
-            foreach ($this->alat_ids as $alatId) {
-                Alat::where('id', $alatId)->decrement('stok');
             }
         }
     }
@@ -121,22 +120,14 @@ class Peminjaman extends Model
         return null;
     }
 
-    // Method untuk mengembalikan alat (ubah status ke selesai)
-    public function kembalikanAlat($fotoPath = null, $metode = 'langsung')
+    // Helper method untuk cek status
+    public function isMenungguPeminjaman()
     {
-        $updateData = [
-            'status' => 'selesai',
-            'tanggal_dikembalikan' => now(),
-            'waktu_pengembalian' => now(),
-            'metode_pengembalian' => $metode,
-        ];
-
-        if ($fotoPath) {
-            $updateData['foto_bukti'] = $fotoPath;
-        }
-
-        $this->update($updateData);
-        
-        return $this;
+        return $this->status === 'menunggu_peminjaman';
+    }
+    
+    public function isMenungguPengembalian()
+    {
+        return $this->status === 'menunggu_pengembalian';
     }
 }

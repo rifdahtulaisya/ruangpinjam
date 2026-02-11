@@ -14,7 +14,8 @@
 
 <!-- DataTables Responsive -->
 <link href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.dataTables.min.css" rel="stylesheet">
-
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body class="min-h-screen relative overflow-x-hidden fixed inset-0 -z-20
@@ -55,7 +56,8 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 const ctx = document.getElementById('chartPeminjaman');
 

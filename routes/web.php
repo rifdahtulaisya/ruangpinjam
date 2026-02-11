@@ -65,7 +65,15 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 
 Route::post('kelolapeminjaman/{id}/konfirmasi-pengembalian', [KelolaPeminjamanController::class, 'konfirmasiPengembalian'])
     ->name('kelolapeminjaman.konfirmasi-pengembalian');
-         
+    
+         Route::post('kelolapeminjaman/{id}/setujui', [KelolaPeminjamanController::class, 'setujuiPeminjaman'])
+     ->name('kelolapeminjaman.setujui');
+
+Route::post('kelolapeminjaman/{id}/tolak', [KelolaPeminjamanController::class, 'tolakPeminjaman'])
+     ->name('kelolapeminjaman.tolak');
+     // Tambahkan route ini jika belum ada
+Route::post('kelolapeminjaman/{id}/konfirmasi-pengembalian', [KelolaPeminjamanController::class, 'konfirmasiPengembalian'])
+    ->name('kelolapeminjaman.konfirmasi-pengembalian');
 });
 
 Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
