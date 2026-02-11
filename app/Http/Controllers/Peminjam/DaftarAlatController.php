@@ -40,84 +40,65 @@ class DaftarAlatController extends Controller
     }
     
     public function storePeminjaman(Request $request)
-    {
-        // Debug: lihat data yang dikirim
-        \Log::info('Store Peminjaman Request:', $request->all());
-        
-        $request->validate([
-            'alat_ids' => 'required|array|min:1',
-            'alat_ids.*' => 'exists:alat,id',
-            'tanggal_peminjaman' => 'required|date|after_or_equal:today',
-            'tanggal_pengembalian' => 'required|date|after:tanggal_peminjaman',
-            'keterangan' => 'nullable|string|max:500',
-        ]);
+{
+    $request->validate([
+        'alat_ids' => 'required|array|min:1',
+        'alat_ids.*' => 'exists:alat,id',
+        'tanggal_peminjaman' => 'required|date|after_or_equal:today',
+        'tanggal_pengembalian' => 'required|date|after:tanggal_peminjaman',
+    ]);
 
-        try {
-            \DB::beginTransaction(); // Mulai transaction
+    try {
+        \DB::beginTransaction();
 
-            $alatNames = [];
-            $alatIdsValid = [];
+        $alatNames = [];
+        $alatIdsValid = [];
 
-            foreach ($request->alat_ids as $alatId) {
-                $alat = Alat::findOrFail($alatId);
+        // VALIDASI STOK SEBELUM MENYIMPAN
+        foreach ($request->alat_ids as $alatId) {
+            $alat = Alat::findOrFail($alatId);
 
-                if ($alat->stok <= 0) {
-                    return back()->with('error', "Alat {$alat->nama_alat} stok habis!");
-                }
-
-                $alatNames[] = $alat->nama_alat;
-                $alatIdsValid[] = $alatId;
+            // Cek stok tersedia
+            if ($alat->stok <= 0) {
+                \DB::rollBack();
+                return back()->with('error', "Alat {$alat->nama_alat} stok habis! Silakan pilih alat lain.");
             }
 
-            // PERBAIKAN: Gunakan status yang baru
-            // SIMPAN PEMINJAMAN
-            $peminjaman = Peminjaman::create([
-                'user_id' => Auth::id(),
-                'alat_ids' => $alatIdsValid,
-                'nama_alat' => implode(', ', $alatNames),
-                'tanggal_peminjaman' => $request->tanggal_peminjaman,
-                'tanggal_pengembalian' => $request->tanggal_pengembalian,
-                'status' => 'menunggu_peminjaman', // PERUBAHAN DI SINI
-                'keterangan' => $request->keterangan,
-                'created_at' => now(),
-            ]);
-
-            // PERBAIKAN: Jangan kurangi stok dulu karena belum disetujui
-            // Stok akan otomatis dikurangi di model Peminjaman saat status berubah ke 'dipinjam'
-            // (di method setStatusAttribute)
-
-            // Simpan log aktivitas
-            LogAktivitas::create([
-                'user_id' => Auth::id(),
-                'role' => Auth::user()->role,
-                'aktivitas' => 'Mengajukan peminjaman: ' . implode(', ', $alatNames),
-                'modul' => 'peminjaman'
-            ]);
-
-            \DB::commit(); // Commit transaction
-
-            \Log::info('Peminjaman berhasil disimpan:', [
-                'id' => $peminjaman->id,
-                'user_id' => $peminjaman->user_id,
-                'alat_ids' => $peminjaman->alat_ids,
-                'status' => $peminjaman->status
-            ]);
-
-            return redirect()
-                ->route('peminjam.peminjaman.index')
-                ->with('success', 'Peminjaman berhasil diajukan! Menunggu persetujuan petugas.');
-
-        } catch (\Exception $e) {
-            \DB::rollBack(); // Rollback jika error
-            
-            \Log::error('Error store peminjaman:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal mengajukan peminjaman: ' . $e->getMessage());
+            $alatNames[] = $alat->nama_alat;
+            $alatIdsValid[] = $alatId;
         }
+
+        // Simpan peminjaman
+        $peminjaman = Peminjaman::create([
+            'user_id' => Auth::id(),
+            'alat_ids' => $alatIdsValid,
+            'nama_alat' => implode(', ', $alatNames),
+            'tanggal_peminjaman' => $request->tanggal_peminjaman,
+            'tanggal_pengembalian' => $request->tanggal_pengembalian,
+            'status' => 'menunggu_peminjaman',
+            'keterangan' => $request->keterangan,
+        ]);
+
+        LogAktivitas::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role,
+            'aktivitas' => 'Mengajukan peminjaman: ' . implode(', ', $alatNames),
+            'modul' => 'peminjaman'
+        ]);
+
+        \DB::commit();
+
+        return redirect()
+            ->route('peminjam.peminjaman.index')
+            ->with('success', 'Peminjaman berhasil diajukan! Menunggu persetujuan petugas.');
+
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        \Log::error('Error store peminjaman: ' . $e->getMessage());
+        
+        return back()
+            ->withInput()
+            ->with('error', 'Gagal mengajukan peminjaman: ' . $e->getMessage());
     }
+}
 }

@@ -91,33 +91,41 @@ class PeminjamanController extends Controller
         return redirect()->back()->with('success', 'Peminjaman berhasil diajukan');
     }
 
-   public function kembalikan($id)
-    {
-        try {
-            $peminjaman = Peminjaman::findOrFail($id);
-            
-            // Validasi hanya yang sedang dipinjam yang bisa dikembalikan
-            if ($peminjaman->status !== 'dipinjam') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Peminjaman tidak dapat dikembalikan'
-                ], 400);
-            }
-            
-            // Ubah status ke menunggu_pengembalian (menunggu konfirmasi dari admin)
-            $peminjaman->status = 'menunggu_pengembalian'; // PERUBAHAN
-            $peminjaman->save();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Pengajuan pengembalian berhasil. Menunggu konfirmasi admin.'
-            ]);
-            
-        } catch (\Exception $e) {
+   // Di App\Http\Controllers\Peminjam\PeminjamanController.php
+public function kembalikan($id)
+{
+    try {
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        // Validasi hanya yang sedang dipinjam yang bisa dikembalikan
+        if ($peminjaman->status !== 'dipinjam') {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Peminjaman tidak dapat dikembalikan'
+            ], 400);
         }
+        
+        // PERUBAHAN: Ubah status ke menunggu_pengembalian TANPA mengubah stok
+        $peminjaman->status = 'menunggu_pengembalian';
+        $peminjaman->save(); // Stok TIDAK berubah di sini!
+        
+        \Log::info("Pengajuan pengembalian #{$id} oleh peminjam", [
+            'user_id' => Auth::id(),
+            'status_sebelum' => 'dipinjam',
+            'status_setelah' => 'menunggu_pengembalian'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengajuan pengembalian berhasil. Menunggu konfirmasi admin.'
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error kembalikan: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+        ], 500);
     }
+}
 }

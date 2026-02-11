@@ -261,9 +261,10 @@
                                             <span class="hidden md:inline">Detail</span>
                                         </button>
 
+                                        <!-- Di bagian action buttons -->
                                         @if ($peminjaman->status == 'menunggu_peminjaman')
                                             <!-- Tombol Setujui -->
-                                            <button onclick="konfirmasiAksi({{ $peminjaman->id }}, 'setujui')"
+                                            <button onclick="konfirmasiSetujui({{ $peminjaman->id }})"
                                                 class="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition flex items-center gap-1 text-sm"
                                                 title="Setujui">
                                                 <i class="fas fa-check text-xs"></i>
@@ -271,7 +272,7 @@
                                             </button>
 
                                             <!-- Tombol Tolak -->
-                                            <button onclick="konfirmasiAksi({{ $peminjaman->id }}, 'tolak')"
+                                            <button onclick="konfirmasiTolak({{ $peminjaman->id }})"
                                                 class="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition flex items-center gap-1 text-sm"
                                                 title="Tolak">
                                                 <i class="fas fa-times text-xs"></i>
@@ -279,19 +280,21 @@
                                             </button>
                                         @endif
 
-                                        @if ($peminjaman->status == 'menunggu_pengembalian')
-                                            <button onclick="showKonfirmasiPengembalianModal({{ $peminjaman->id }})"
-                                                class="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition flex items-center gap-1 text-sm"
+                                        @if ($peminjaman->status == 'dipinjam')
+                                            <!-- Tombol Konfirmasi Pengembalian (langsung selesai) -->
+                                            <button onclick="konfirmasiPengembalian({{ $peminjaman->id }})"
+                                                class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center gap-1 text-sm"
                                                 title="Konfirmasi Pengembalian">
                                                 <i class="fas fa-check-circle text-xs"></i>
                                                 <span class="hidden md:inline">Konfirmasi</span>
                                             </button>
 
+                                            <!-- Tombol Tegur (opsional) -->
                                             <button onclick="showTeguranModal({{ $peminjaman->id }})"
                                                 class="px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition flex items-center gap-1 text-sm"
                                                 title="Beri Teguran">
                                                 <i class="fas fa-exclamation-triangle text-xs"></i>
-                                                <span class="hidden md:inline">Teguran</span>
+                                                <span class="hidden md:inline">Tegur</span>
                                             </button>
                                         @endif
 
@@ -780,6 +783,86 @@
         let currentPeminjamanId = null;
         let currentAction = null;
 
+        function konfirmasiSetujui(peminjamanId) {
+            Swal.fire({
+                title: 'Setujui Peminjaman',
+                text: 'Apakah Anda yakin ingin menyetujui peminjaman ini? Stok alat akan berkurang.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Setujui',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/petugas/kelolapeminjaman/${peminjamanId}/setujui`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => location.reload());
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: data.message,
+                                    icon: 'error'
+                                });
+                            }
+                        });
+                }
+            });
+        }
+
+
+function konfirmasiTolak(peminjamanId) {
+    Swal.fire({
+        title: 'Tolak Peminjaman',
+        input: 'textarea',
+        inputLabel: 'Alasan Penolakan',
+        inputPlaceholder: 'Masukkan alasan penolakan...',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Tolak',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            fetch(`/petugas/kelolapeminjaman/${peminjamanId}/tolak`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ alasan: result.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: data.message,
+                        icon: 'success'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: data.message,
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+    });
+}
         function showSetujuiModal(peminjamanId) {
             Swal.fire({
                 title: 'Setujui Peminjaman',
@@ -902,59 +985,44 @@
             });
         }
 
-        // Fungsi untuk konfirmasi pengembalian
-        function showKonfirmasiPengembalianModal(peminjamanId) {
-            Swal.fire({
-                title: 'Konfirmasi Pengembalian',
-                text: 'Apakah alat sudah dikembalikan dengan baik? Stok akan otomatis bertambah.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Konfirmasi',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/petugas/kelolapeminjaman/${peminjamanId}/konfirmasi-pengembalian`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    confirmButtonColor: '#10b981',
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: data.message,
-                                    icon: 'error',
-                                    confirmButtonColor: '#ef4444'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Error!',
-                                text: 'Terjadi kesalahan. Silakan coba lagi.',
-                                icon: 'error',
-                                confirmButtonColor: '#ef4444'
-                            });
-                        });
+        function konfirmasiPengembalian(peminjamanId) {
+    Swal.fire({
+        title: 'Konfirmasi Pengembalian',
+        text: 'Apakah alat sudah dikembalikan? Peminjaman akan langsung selesai dan stok alat bertambah.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Konfirmasi',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/petugas/kelolapeminjaman/${peminjamanId}/konfirmasi-pengembalian`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: data.message,
+                        icon: 'success'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: data.message,
+                        icon: 'error'
+                    });
                 }
             });
         }
+    });
+}
 
         // Filter Dropdown
         document.addEventListener('DOMContentLoaded', function() {
@@ -1213,22 +1281,22 @@
                         </h4>
                         <div class="space-y-3">
                             ${data.alat.map(alat => `
-                                                        <div class="bg-slate-50 p-4 rounded-xl">
-                                                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                                                                <div>
-                                                                    <div class="font-medium text-slate-800">${alat.nama}</div>
-                                                                    <div class="text-sm text-slate-500">Kode: ${alat.kode}</div>
+                                                            <div class="bg-slate-50 p-4 rounded-xl">
+                                                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                                                                    <div>
+                                                                        <div class="font-medium text-slate-800">${alat.nama}</div>
+                                                                        <div class="text-sm text-slate-500">Kode: ${alat.kode}</div>
+                                                                    </div>
+                                                                    <div class="flex items-center gap-2 mt-2 md:mt-0">
+                                                                        <span class="px-2 py-1 ${alat.kondisi === 'baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-xs">
+                                                                            ${alat.kondisi}
+                                                                        </span>
+                                                                        <span class="text-sm text-slate-500">Stok: ${alat.stok}</span>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="flex items-center gap-2 mt-2 md:mt-0">
-                                                                    <span class="px-2 py-1 ${alat.kondisi === 'baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-xs">
-                                                                        ${alat.kondisi}
-                                                                    </span>
-                                                                    <span class="text-sm text-slate-500">Stok: ${alat.stok}</span>
-                                                                </div>
+                                                                <div class="text-sm text-slate-500">Lokasi: ${alat.lokasi}</div>
                                                             </div>
-                                                            <div class="text-sm text-slate-500">Lokasi: ${alat.lokasi}</div>
-                                                        </div>
-                                                    `).join('')}
+                                                        `).join('')}
                         </div>
                     </div>
 

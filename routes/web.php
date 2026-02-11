@@ -74,6 +74,19 @@ Route::post('kelolapeminjaman/{id}/tolak', [KelolaPeminjamanController::class, '
      // Tambahkan route ini jika belum ada
 Route::post('kelolapeminjaman/{id}/konfirmasi-pengembalian', [KelolaPeminjamanController::class, 'konfirmasiPengembalian'])
     ->name('kelolapeminjaman.konfirmasi-pengembalian');
+    
+    Route::post('/kelolapeminjaman/{id}/setujui', [KelolaPeminjamanController::class, 'setujuiPeminjaman'])
+    ->name('kelolapeminjaman.setujui');
+
+Route::post('/kelolapeminjaman/{id}/konfirmasi-pengembalian', [KelolaPeminjamanController::class, 'konfirmasiPengembalian'])
+    ->name('kelolapeminjaman.konfirmasi-pengembalian');
+
+Route::post('/kelolapeminjaman/{id}/tolak', [KelolaPeminjamanController::class, 'tolakPeminjaman'])
+    ->name('kelolapeminjaman.tolak');
+
+// Route untuk konfirmasi langsung (dari status dipinjam ke selesai)
+Route::post('/kelolapeminjaman/{id}/langsung-selesai', [KelolaPeminjamanController::class, 'langsungSelesai'])
+    ->name('kelolapeminjaman.langsung-selesai');
 });
 
 Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {

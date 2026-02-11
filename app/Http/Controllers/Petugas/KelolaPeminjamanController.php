@@ -8,14 +8,12 @@ use App\Models\Alat;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class KelolaPeminjamanController extends Controller
 {
-     public function index(Request $request)
+    public function index(Request $request)
     {
-        // Filter berdasarkan status jika ada
         $status = $request->input('status');
         
         $peminjamans = Peminjaman::with('user')
@@ -26,10 +24,9 @@ class KelolaPeminjamanController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Hitung statistik dengan status baru
+        // Hitung statistik
         $counts = [
             'menunggu_peminjaman' => Peminjaman::where('status', 'menunggu_peminjaman')->count(),
-            'menunggu_pengembalian' => Peminjaman::where('status', 'menunggu_pengembalian')->count(),
             'dipinjam' => Peminjaman::where('status', 'dipinjam')->count(),
             'selesai' => Peminjaman::where('status', 'selesai')->count(),
             'ditolak' => Peminjaman::where('status', 'ditolak')->count(),
@@ -38,77 +35,7 @@ class KelolaPeminjamanController extends Controller
         
         return view('petugas.kelolapeminjaman', compact('peminjamans', 'counts'));
     }
-// Tambahkan method ini di controller
-public function konfirmasi(Request $request, $id)
-{
-    try {
-        $peminjaman = Peminjaman::findOrFail($id);
-        $action = $request->input('action');
-        
-        if ($action === 'setuju') {
-            // Setujui peminjaman
-            if ($peminjaman->status !== 'menunggu_peminjaman') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Peminjaman tidak dalam status menunggu persetujuan'
-                ], 400);
-            }
-            
-            $peminjaman->update([
-                'status' => 'dipinjam',
-            ]);
-            
-            LogAktivitas::create([
-                'user_id' => Auth::id(),
-                'role' => Auth::user()->role,
-                'aktivitas' => 'Menyetujui peminjaman #' . $id,
-                'modul' => 'peminjaman'
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Peminjaman berhasil disetujui'
-            ]);
-            
-        } elseif ($action === 'tolak') {
-            // Tolak peminjaman
-            if ($peminjaman->status !== 'menunggu_peminjaman') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Peminjaman tidak dalam status menunggu persetujuan'
-                ], 400);
-            }
-            
-            $peminjaman->update([
-                'status' => 'ditolak',
-                'keterangan' => $request->input('alasan') ?? 'Ditolak oleh petugas',
-            ]);
-            
-            LogAktivitas::create([
-                'user_id' => Auth::id(),
-                'role' => Auth::user()->role,
-                'aktivitas' => 'Menolak peminjaman #' . $id,
-                'modul' => 'peminjaman'
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Peminjaman berhasil ditolak'
-            ]);
-        }
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Aksi tidak valid'
-        ], 400);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-        ], 500);
-    }
-}
+
     public function detail($id)
     {
         $peminjaman = Peminjaman::with(['user', 'alat'])->findOrFail($id);
@@ -143,39 +70,42 @@ public function konfirmasi(Request $request, $id)
         ]);
     }
 
-    // Perbaiki method konfirmasiPengembalian
-    public function konfirmasiPengembalian(Request $request, $id)
+    // PERBAIKAN: Gunakan save() bukan update()
+    public function konfirmasiPengembalian($id)
     {
         try {
             $peminjaman = Peminjaman::findOrFail($id);
             
-            // Validasi hanya yang menunggu_pengembalian yang bisa dikonfirmasi
-            if ($peminjaman->status !== 'menunggu_pengembalian') {
+            if ($peminjaman->status !== 'dipinjam') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Peminjaman tidak dalam status menunggu konfirmasi pengembalian'
+                    'message' => 'Peminjaman tidak dalam status dipinjam'
                 ], 400);
             }
             
-            // Konfirmasi pengembalian - ubah status ke selesai
-            $peminjaman->update([
-                'status' => 'selesai',
-                'tanggal_dikembalikan' => now(),
-            ]);
+            // PERBAIKAN: Gunakan save() dengan properti langsung
+            $peminjaman->status = 'selesai';
+            $peminjaman->tanggal_dikembalikan = now();
+            $peminjaman->waktu_pengembalian = now();
+            $peminjaman->metode_pengembalian = 'petugas'; // Ini string yang harus di-quote
+            $peminjaman->save(); // Ini akan memanggil setStatusAttribute()
             
             LogAktivitas::create([
                 'user_id' => Auth::id(),
                 'role' => Auth::user()->role,
-                'aktivitas' => 'Mengonfirmasi pengembalian peminjaman #' . $id,
+                'aktivitas' => 'Mengkonfirmasi pengembalian peminjaman #' . $id,
                 'modul' => 'pengembalian'
             ]);
             
             return response()->json([
                 'success' => true,
-                'message' => 'Pengembalian berhasil dikonfirmasi. Stok alat telah dikembalikan.'
+                'message' => 'Pengembalian berhasil dikonfirmasi. Peminjaman selesai dan stok alat bertambah.'
             ]);
             
         } catch (\Exception $e) {
+            \Log::error('Error konfirmasiPengembalian: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
@@ -192,14 +122,13 @@ public function konfirmasi(Request $request, $id)
         
         $peminjaman = Peminjaman::findOrFail($id);
         
-        // Update status ke selesai
-        $peminjaman->update([
-            'status' => 'selesai',
-            'tanggal_dikembalikan' => now(),
-            'waktu_pengembalian' => now(),
-            'keterangan' => $request->catatan,
-            'metode_pengembalian' => 'mandiri',
-        ]);
+        // PERBAIKAN: Gunakan save() bukan update()
+        $peminjaman->status = 'selesai';
+        $peminjaman->tanggal_dikembalikan = now();
+        $peminjaman->waktu_pengembalian = now();
+        $peminjaman->keterangan = $request->catatan;
+        $peminjaman->metode_pengembalian = 'mandiri';
+        $peminjaman->save();
         
         // Update kondisi alat jika rusak
         if ($request->kondisi === 'rusak' && $peminjaman->alat_ids) {
@@ -218,86 +147,85 @@ public function konfirmasi(Request $request, $id)
         return response()->json(['success' => true, 'message' => 'Pengembalian berhasil diverifikasi']);
     }
 
-     // Method setujuiPeminjaman sudah ada
-public function setujuiPeminjaman($id)
-{
-    try {
-        $peminjaman = Peminjaman::findOrFail($id);
-        
-        if ($peminjaman->status !== 'menunggu_peminjaman') {
+    // Method untuk menyetujui peminjaman
+    public function setujuiPeminjaman($id)
+    {
+        try {
+            $peminjaman = Peminjaman::findOrFail($id);
+            
+            if ($peminjaman->status !== 'menunggu_peminjaman') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Peminjaman tidak dalam status menunggu persetujuan'
+                ], 400);
+            }
+            
+            // PERBAIKAN: Gunakan save()
+            $peminjaman->status = 'dipinjam';
+            $peminjaman->save(); // Ini akan memanggil setStatusAttribute()
+            
+            LogAktivitas::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role,
+                'aktivitas' => 'Menyetujui peminjaman #' . $id,
+                'modul' => 'peminjaman'
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Peminjaman berhasil disetujui. Stok alat berkurang.'
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error setujuiPeminjaman: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Peminjaman tidak dalam status menunggu persetujuan'
-            ], 400);
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $peminjaman->update([
-            'status' => 'dipinjam',
-        ]);
-        
-        LogAktivitas::create([
-            'user_id' => Auth::id(),
-            'role' => Auth::user()->role,
-            'aktivitas' => 'Menyetujui peminjaman #' . $id,
-            'modul' => 'peminjaman'
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Peminjaman berhasil disetujui'
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-        ], 500);
     }
-}
 
-// Method tolakPeminjaman sudah ada
-public function tolakPeminjaman(Request $request, $id)
-{
-    try {
-        $peminjaman = Peminjaman::findOrFail($id);
-        
-        if ($peminjaman->status !== 'menunggu_peminjaman') {
+    // Method untuk menolak peminjaman
+    public function tolakPeminjaman(Request $request, $id)
+    {
+        try {
+            $peminjaman = Peminjaman::findOrFail($id);
+            
+            if ($peminjaman->status !== 'menunggu_peminjaman') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Peminjaman tidak dalam status menunggu persetujuan'
+                ], 400);
+            }
+            
+            $request->validate([
+                'alasan' => 'required|string|max:500',
+            ]);
+            
+            // PERBAIKAN: Gunakan save()
+            $peminjaman->status = 'ditolak';
+            $peminjaman->keterangan = $request->alasan;
+            $peminjaman->save();
+            
+            LogAktivitas::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role,
+                'aktivitas' => 'Menolak peminjaman #' . $id,
+                'modul' => 'peminjaman'
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Peminjaman berhasil ditolak'
+            ]);
+            
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Peminjaman tidak dalam status menunggu persetujuan'
-            ], 400);
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $request->validate([
-            'alasan' => 'required|string|max:500',
-        ]);
-        
-        $peminjaman->update([
-            'status' => 'ditolak',
-            'keterangan' => $request->alasan,
-        ]);
-        
-        LogAktivitas::create([
-            'user_id' => Auth::id(),
-            'role' => Auth::user()->role,
-            'aktivitas' => 'Menolak peminjaman #' . $id,
-            'modul' => 'peminjaman'
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Peminjaman berhasil ditolak'
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-        ], 500);
     }
-}
-
-
 
     public function tegur(Request $request, $id)
     {
@@ -308,11 +236,10 @@ public function tolakPeminjaman(Request $request, $id)
         
         $peminjaman = Peminjaman::findOrFail($id);
         
-        // Update status ke ditegur
-        $peminjaman->update([
-            'status' => 'ditegur',
-            'keterangan' => 'TEGURAN: ' . $request->alasan . ' - ' . $request->deskripsi,
-        ]);
+        // PERBAIKAN: Gunakan save()
+        $peminjaman->status = 'ditegur';
+        $peminjaman->keterangan = 'TEGURAN: ' . $request->alasan . ' - ' . $request->deskripsi;
+        $peminjaman->save();
         
         LogAktivitas::create([
             'user_id' => Auth::id(),
@@ -328,13 +255,12 @@ public function tolakPeminjaman(Request $request, $id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
         
-        // Untuk metode langsung, langsung selesaikan
-        $peminjaman->update([
-            'status' => 'selesai',
-            'tanggal_dikembalikan' => now(),
-            'waktu_pengembalian' => now(),
-            'metode_pengembalian' => 'langsung',
-        ]);
+        // PERBAIKAN: Gunakan save()
+        $peminjaman->status = 'selesai';
+        $peminjaman->tanggal_dikembalikan = now();
+        $peminjaman->waktu_pengembalian = now();
+        $peminjaman->metode_pengembalian = 'langsung';
+        $peminjaman->save();
         
         LogAktivitas::create([
             'user_id' => Auth::id(),
@@ -344,6 +270,35 @@ public function tolakPeminjaman(Request $request, $id)
         ]);
         
         return response()->json(['success' => true, 'message' => 'Pengembalian langsung berhasil dikonfirmasi']);
+    }
+
+    // HAPUS method-method yang tidak perlu (karena alur baru)
+    public function kembalikan($id) // Ini untuk user, bisa dihapus
+    {
+        // Method ini seharusnya di controller peminjam, bukan petugas
+        // Tapi karena alur baru user tidak perlu tombol kembalikan, bisa dihapus
+        return response()->json([
+            'success' => false,
+            'message' => 'Method tidak tersedia'
+        ], 404);
+    }
+
+    public function konfirmasiKembali($id) // Ini untuk status dikonfirmasi (tidak digunakan)
+    {
+        // Jika tidak digunakan di alur baru, bisa dihapus atau di-komentari
+        return response()->json([
+            'success' => false,
+            'message' => 'Method tidak digunakan dalam alur baru'
+        ], 404);
+    }
+
+    public function selesaikanPeminjaman($id) // Ini untuk status dikonfirmasi (tidak digunakan)
+    {
+        // Jika tidak digunakan di alur baru, bisa dihapus atau di-komentari
+        return response()->json([
+            'success' => false,
+            'message' => 'Method tidak digunakan dalam alur baru'
+        ], 404);
     }
 
     public function uploadFotoBukti(Request $request, $id)
@@ -357,9 +312,9 @@ public function tolakPeminjaman(Request $request, $id)
         if ($request->hasFile('foto_bukti')) {
             $path = $request->file('foto_bukti')->store('foto-pengembalian', 'public');
             
-            $peminjaman->update([
-                'foto_bukti' => $path,
-            ]);
+            // PERBAIKAN: Gunakan save()
+            $peminjaman->foto_bukti = $path;
+            $peminjaman->save();
             
             return response()->json([
                 'success' => true,

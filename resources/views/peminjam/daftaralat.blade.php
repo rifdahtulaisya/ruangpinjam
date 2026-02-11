@@ -264,10 +264,46 @@
 // State untuk menyimpan alat yang dipilih
 let selectedAlat = [];
 
-// Fungsi untuk toggle checkbox
+function validateStokBeforeSelect(alatId, stok) {
+    if (stok <= 0) {
+        Swal.fire({
+            title: 'Stok Habis',
+            text: 'Alat ini stoknya habis. Silakan pilih alat lain.',
+            icon: 'warning',
+            confirmButtonColor: '#3b82f6'
+        });
+        return false;
+    }
+    return true;
+}
+
+// Modifikasi fungsi toggleAlatCheckbox:
 function toggleAlatCheckbox(alatId) {
     const checkbox = document.getElementById(`alat_${alatId}`);
     if (checkbox) {
+        const stok = parseInt(checkbox.getAttribute('data-stok'));
+        const kondisi = checkbox.getAttribute('data-kondisi');
+        
+        // Validasi stok dan kondisi
+        if (stok <= 0) {
+            Swal.fire({
+                title: 'Stok Habis',
+                text: 'Alat ini tidak tersedia untuk dipinjam.',
+                icon: 'warning',
+                confirmButtonColor: '#3b82f6'
+            });
+            return;
+        }
+        
+        if (kondisi !== 'baik') {
+            Swal.fire({
+                title: 'Kondisi Alat',
+                text: 'Alat ini dalam kondisi ' + kondisi + '. Mungkin tidak tersedia untuk dipinjam.',
+                icon: 'info',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+        
         checkbox.checked = !checkbox.checked;
         updateSelectedAlat();
     }

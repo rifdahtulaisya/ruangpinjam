@@ -25,7 +25,7 @@
 
                             <span id="statusLabel">
                                 @switch(request('status'))
-                                    @case('menunggu')
+                                    @case('menunggu_peminjaman')
                                         Menunggu Persetujuan
                                     @break
 
@@ -63,17 +63,11 @@
                                     Semua Status
                                 </div>
 
-                                <!-- Di blade peminjam -->
+                                <!-- Update option untuk status baru -->
                                 <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-yellow-50 cursor-pointer"
                                     data-value="menunggu_peminjaman" data-label="Menunggu Persetujuan">
                                     <i class="fas fa-clock text-yellow-500 w-4"></i>
                                     Menunggu Persetujuan
-                                </div>
-
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 cursor-pointer"
-                                    data-value="menunggu_pengembalian" data-label="Menunggu Konfirmasi Pengembalian">
-                                    <i class="fas fa-hourglass-half text-blue-500 w-4"></i>
-                                    Menunggu Konfirmasi Pengembalian
                                 </div>
 
                                 <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 cursor-pointer"
@@ -111,14 +105,14 @@
                     </button>
                 </div>
 
-                <!-- Bagian kanan: Pengembalian Mandiri -->
-                <div>
+                <!-- HAPUS BAGIAN KANAN (PENGEMBALIAN MANDIRI) -->
+                {{-- <div>
                     <button onclick="bukaPengembalianMandiri()"
                         class="px-6 py-3.5 bg-blue-800 text-white rounded-2xl hover:bg-blue-900 transition-all duration-200 flex items-center gap-3 group shadow-md hover:shadow-lg">
                         <i class="fas fa-undo-alt group-hover:rotate-180 transition-transform duration-500"></i>
                         <span class="font-medium">Pengembalian Mandiri</span>
                     </button>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -163,33 +157,31 @@
                                     </div>
                                 </td>
                                 <td class="py-4 px-6">
-                                    
                                     @php
-    $statusColors = [
-        'menunggu_peminjaman' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        'menunggu_pengembalian' => 'bg-blue-100 text-blue-800 border-blue-200',
-        'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
-        'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
-        'ditolak' => 'bg-red-100 text-red-800 border-red-200',
-        'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
-    ];
-    $statusIcons = [
-        'menunggu_peminjaman' => 'clock',
-        'menunggu_pengembalian' => 'hourglass-half',
-        'dipinjam' => 'hand-holding',
-        'selesai' => 'check-circle',
-        'ditolak' => 'times-circle',
-        'ditegur' => 'exclamation-triangle',
-    ];
-@endphp
+                                        // Update status colors - HAPUS menunggu_pengembalian
+                                        $statusColors = [
+                                            'menunggu_peminjaman' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                                            'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
+                                            'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
+                                            'ditolak' => 'bg-red-100 text-red-800 border-red-200',
+                                            'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
+                                        ];
+                                        $statusIcons = [
+                                            'menunggu_peminjaman' => 'clock',
+                                            'dipinjam' => 'hand-holding',
+                                            'selesai' => 'check-circle',
+                                            'ditolak' => 'times-circle',
+                                            'ditegur' => 'exclamation-triangle',
+                                        ];
+                                    @endphp
                                     <span
                                         class="px-3 py-1 rounded-full text-sm font-medium border flex items-center gap-1 w-fit {{ $statusColors[$peminjaman->status] ?? 'bg-gray-100 text-gray-800' }}">
                                         <i class="fas fa-{{ $statusIcons[$peminjaman->status] ?? 'circle' }} text-xs"></i>
-                                        {{ ucfirst($peminjaman->status) }}
+                                        {{ ucfirst(str_replace('_', ' ', $peminjaman->status)) }}
                                     </span>
                                 </td>
                                 <td class="py-4 px-6">
-                                    <!-- Action Buttons -->
+                                    <!-- Action Buttons - HANYA DETAIL SAJA -->
                                     <div class="flex gap-2 pt-3 border-t border-slate-100">
                                         <button onclick="showDetailModal({{ $peminjaman->id }})"
                                             class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-1">
@@ -197,38 +189,28 @@
                                             <span class="text-sm">Detail</span>
                                         </button>
 
-                                        <!-- Di blade peminjam (di bagian action buttons) -->
-                                        @if ($peminjaman->status == 'dipinjam')
-                                            <button onclick="showKembalikanModal({{ $peminjaman->id }})"
-                                                class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
-                                                <i class="fas fa-upload text-xs"></i>
-                                                <span class="text-sm">Kembalikan</span>
-                                            </button>
-                                        @elseif ($peminjaman->status == 'menunggu_peminjaman')
+                                        <!-- HAPUS SEMUA TOMBOL LAINNYA, HANYA TAMPILKAN STATUS -->
+                                        @if ($peminjaman->status == 'menunggu_peminjaman')
                                             <span
                                                 class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium border border-yellow-200 flex items-center justify-center gap-1">
                                                 <i class="fas fa-clock text-xs"></i>
                                                 <span>Menunggu Persetujuan</span>
                                             </span>
-                                        @elseif ($peminjaman->status == 'menunggu_pengembalian')
+                                        @elseif ($peminjaman->status == 'dipinjam')
                                             <span
-                                                class="flex-1 px-3 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium border border-blue-200 flex items-center justify-center gap-1">
-                                                <i class="fas fa-hourglass-half text-xs"></i>
-                                                <span>Menunggu Konfirmasi</span>
+                                                class="flex-1 px-3 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-medium border border-green-200 flex items-center justify-center gap-1">
+                                                <i class="fas fa-hand-holding text-xs"></i>
+                                                <span>Sedang Dipinjam</span>
+                                            </span>
+                                        @elseif ($peminjaman->status == 'selesai')
+                                            <span
+                                                class="flex-1 px-3 py-2 bg-purple-100 text-purple-800 rounded-lg text-sm font-medium border border-purple-200 flex items-center justify-center gap-1">
+                                                <i class="fas fa-check-circle text-xs"></i>
+                                                <span>Selesai</span>
                                             </span>
                                         @endif
                                     </div>
                                 </td>
-                                <script>
-                                    // Test function - hapus setelah berhasil
-                                    console.log('Script loaded successfully');
-
-                                    // Test jika button diklik
-                                    window.testKembalikan = function(id) {
-                                        console.log('Button clicked for ID:', id);
-                                        showKembalikanModal(id);
-                                    }
-                                </script>
                             </tr>
                         @empty
                             <tr>
@@ -268,18 +250,18 @@
                                 </div>
 
                                 @php
-    $statusColors = [
-        'menunggu_peminjaman' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        'menunggu_pengembalian' => 'bg-blue-100 text-blue-800 border-blue-200',
-        'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
-        'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
-        'ditolak' => 'bg-red-100 text-red-800 border-red-200',
-        'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
-    ];
-@endphp
+                                    // Update untuk mobile juga
+                                    $statusColors = [
+                                        'menunggu_peminjaman' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                                        'dipinjam' => 'bg-green-100 text-green-800 border-green-200',
+                                        'selesai' => 'bg-purple-100 text-purple-800 border-purple-200',
+                                        'ditolak' => 'bg-red-100 text-red-800 border-red-200',
+                                        'ditegur' => 'bg-orange-100 text-orange-800 border-orange-200',
+                                    ];
+                                @endphp
                                 <span
                                     class="px-2 py-1 rounded-full text-xs font-medium border {{ $statusColors[$peminjaman->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                    {{ ucfirst($peminjaman->status) }}
+                                    {{ ucfirst(str_replace('_', ' ', $peminjaman->status)) }}
                                 </span>
                             </div>
 
@@ -314,7 +296,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons -->
+                                <!-- Action Buttons - HANYA DETAIL SAJA -->
                                 <div class="flex gap-2 pt-3 border-t border-slate-100">
                                     <button onclick="showDetailModal({{ $peminjaman->id }})"
                                         class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-1">
@@ -322,19 +304,14 @@
                                         <span class="text-sm">Detail</span>
                                     </button>
 
-                                    @if ($peminjaman->status == 'dipinjam')
+                                    <!-- HAPUS TOMBOL KEMBALIKAN DI MOBILE -->
+                                    {{-- @if ($peminjaman->status == 'dipinjam')
                                         <button onclick="showKembalikanModal({{ $peminjaman->id }})"
                                             class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
                                             <i class="fas fa-upload text-xs"></i>
                                             <span class="text-sm">Kembalikan</span>
                                         </button>
-                                    @elseif ($peminjaman->status == 'menunggu')
-                                        <span
-                                            class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium border border-yellow-200 flex items-center justify-center gap-1">
-                                            <i class="fas fa-clock text-xs"></i>
-                                            <span>Menunggu</span>
-                                        </span>
-                                    @endif
+                                    @endif --}}
                                 </div>
                             </div>
                         </div>
@@ -470,61 +447,7 @@
     </div>
 
     <script>
-        function showKembalikanModal(peminjamanId) {
-            Swal.fire({
-                title: 'Konfirmasi Pengembalian',
-                text: 'Apakah Anda yakin ingin mengembalikan alat? Status akan berubah menjadi "Menunggu Konfirmasi"',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Kembalikan',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // AJAX untuk mengubah status ke 'menunggu_pengembalian'
-                    fetch(`/peminjam/peminjaman/${peminjamanId}/kembalikan`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    confirmButtonColor: '#3b82f6',
-                                    confirmButtonText: 'OK'
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: data.message || 'Gagal mengajukan pengembalian',
-                                    icon: 'error',
-                                    confirmButtonColor: '#ef4444'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Error!',
-                                text: 'Terjadi kesalahan. Silakan coba lagi.',
-                                icon: 'error',
-                                confirmButtonColor: '#ef4444'
-                            });
-                        });
-                }
-            });
-        }
+        
         document.addEventListener('DOMContentLoaded', function() {
 
             const trigger = document.getElementById('statusTrigger');
