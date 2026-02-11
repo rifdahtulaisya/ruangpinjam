@@ -202,12 +202,6 @@
                                                 <i class="fas fa-hand-holding text-xs"></i>
                                                 <span>Sedang Dipinjam</span>
                                             </span>
-                                        @elseif ($peminjaman->status == 'selesai')
-                                            <span
-                                                class="flex-1 px-3 py-2 bg-purple-100 text-purple-800 rounded-lg text-sm font-medium border border-purple-200 flex items-center justify-center gap-1">
-                                                <i class="fas fa-check-circle text-xs"></i>
-                                                <span>Selesai</span>
-                                            </span>
                                         @endif
                                     </div>
                                 </td>

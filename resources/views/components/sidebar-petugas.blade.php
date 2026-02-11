@@ -48,31 +48,11 @@
     <i class="fa-solid fa-clipboard-check w-5 text-center"></i>
     Kelola Peminjaman
 </a>
-        <!-- VERIFIKASI PEMINJAMAN -->
-        <a href=""
-           class="flex items-center gap-4 px-5 py-3 rounded-xl transition
-                  {{ Route::is('petugas.verifikasi.*') 
-                     ? 'bg-emerald-100 text-emerald-600 font-semibold shadow-sm' 
-                     : 'text-slate-600 hover:bg-emerald-100/70 hover:text-emerald-600' }}">
-            <i class="fa-solid fa-check-circle w-5 text-center"></i>
-            Verifikasi
-            <span class="ml-auto bg-emerald-500 text-white text-xs px-2 py-1 rounded-full">
-                5
-            </span>
-        </a>
 
-        <!-- PENGEMBALIAN ALAT -->
-        <a href=""
-           class="flex items-center gap-4 px-5 py-3 rounded-xl transition
-                  {{ Route::is('petugas.pengembalian.*') 
-                     ? 'bg-emerald-100 text-emerald-600 font-semibold shadow-sm' 
-                     : 'text-slate-600 hover:bg-emerald-100/70 hover:text-emerald-600' }}">
-            <i class="fa-solid fa-box-archive w-5 text-center"></i>
-            Pengembalian
-        </a>
+
 
         <!-- LAPORAN -->
-        <a href=""
+        <a href="{{ route('petugas.laporan.index') }}"
            class="flex items-center gap-4 px-5 py-3 rounded-xl transition
                   {{ Route::is('petugas.laporan.*') 
                      ? 'bg-emerald-100 text-emerald-600 font-semibold shadow-sm' 

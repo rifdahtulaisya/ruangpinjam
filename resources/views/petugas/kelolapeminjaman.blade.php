@@ -97,13 +97,6 @@
                         <span class="font-medium text-slate-700">Reset</span>
                     </button>
                 </div>
-
-                <!-- Export Button dipindah ke kanan -->
-                <button onclick="showExportModal()"
-                    class="px-5 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 transition-all duration-200 flex items-center gap-3 group shadow-sm">
-                    <i class="fas fa-file-export group-hover:translate-x-1 transition-transform"></i>
-                    <span class="font-medium">Export Data</span>
-                </button>
             </div>
         </div>
 
@@ -245,11 +238,7 @@
                                         class="px-2 py-1 rounded-full text-xs font-medium border {{ $statusColors[$peminjaman->status] ?? 'bg-gray-100 text-gray-800 border-gray-200' }}">
                                         {{ ucfirst(str_replace('_', ' ', $peminjaman->status)) }}
                                     </span>
-                                    @if ($peminjaman->status == 'selesai' && $peminjaman->metode_pengembalian)
-                                        <div class="text-xs text-slate-500 mt-1">
-                                            Metode: {{ ucfirst($peminjaman->metode_pengembalian) }}
-                                        </div>
-                                    @endif
+                                
                                 </td>
                                 <td class="py-4 px-6">
                                     <div class="flex flex-wrap gap-2">
@@ -1230,16 +1219,6 @@ function konfirmasiTolak(peminjamanId) {
                 `;
             }
 
-            let metodeSection = '';
-            if (data.metode_pengembalian && data.status === 'selesai') {
-                metodeSection = `
-                    <div class="bg-slate-50 p-4 rounded-xl">
-                        <div class="text-sm text-slate-500 mb-1">Metode Pengembalian</div>
-                        <div class="font-medium text-slate-800">${data.metode_pengembalian.charAt(0).toUpperCase() + data.metode_pengembalian.slice(1)}</div>
-                    </div>
-                `;
-            }
-
             return `
                 <div class="space-y-6">
                     <!-- Informasi Peminjam -->
@@ -1269,7 +1248,6 @@ function konfirmasiTolak(peminjamanId) {
                             ${createInfoCard('Tanggal Pinjam', data.tanggal_peminjaman)}
                             ${createInfoCard('Tanggal Kembali', data.tanggal_pengembalian)}
                             ${createInfoCard('Tanggal Dikembalikan', data.tanggal_dikembalikan || '-')}
-                            ${metodeSection}
                         </div>
                     </div>
 

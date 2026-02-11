@@ -156,6 +156,6 @@ overlay.addEventListener('click', () => {
 
 
 
-
+@stack('scripts')
 </body>
 </html>

@@ -9,7 +9,9 @@ use App\Http\Controllers\Admin\LogAktivitasController;
 use App\Http\Controllers\Peminjam\DaftarAlatController;
 use App\Http\Controllers\Peminjam\PeminjamanController;
 use App\Http\Controllers\Petugas\KelolaPeminjamanController;
+use App\Http\Controllers\Petugas\LaporanController;
 use App\Http\Controllers\ProfileController;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,6 +40,13 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
         return view('petugas.dashboard');
     })->name('dashboard');
 
+     // Route untuk Laporan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('index');
+        Route::post('/export', [LaporanController::class, 'export'])->name('export');
+    });
+
+    
     Route::get('kelolapeminjaman', [KelolaPeminjamanController::class, 'index'])
          ->name('kelolapeminjaman.index');
     
