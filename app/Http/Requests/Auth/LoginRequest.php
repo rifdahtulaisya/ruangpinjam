@@ -2,11 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -21,8 +18,6 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -33,54 +28,46 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'username.required' => 'Username wajib diisi',
+            'password.required' => 'Password wajib diisi',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-     public function authenticate(): void
+    public function authenticate(): void
     {
-        $this->ensureIsNotRateLimited();
-
-        // Coba login dengan username (atau email)
-        if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-
+        $credentials = $this->only('username', 'password');
+        
+        // Cek apakah username ada di database
+        $user = \App\Models\User::where('username', $credentials['username'])->first();
+        
+        if (!$user) {
             throw ValidationException::withMessages([
-                'username' => trans('auth.failed'),
+                'username' => 'Username tidak terdaftar',
             ]);
         }
-
-        RateLimiter::clear($this->throttleKey());
-    }
-
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-     public function ensureIsNotRateLimited(): void
-    {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            return;
+        
+        // CEK APAKAH USER DI-BLOKIR
+        if ($user->is_blocked) {
+            throw ValidationException::withMessages([
+                'username' => 'Akun Anda telah diblokir. Silakan hubungi petugas perpustakaan.',
+            ]);
         }
-
-        event(new Lockout($this));
-
-        $seconds = RateLimiter::availableIn($this->throttleKey());
-
-        throw ValidationException::withMessages([
-            'username' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
-
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
-    public function throttleKey(): string
-    {
-        return Str::transliterate(Str::lower($this->input('username')).'|'.$this->ip());
+        
+        // Cek password
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
+            throw ValidationException::withMessages([
+                'password' => 'Password yang Anda masukkan salah',
+            ]);
+        }
     }
 }

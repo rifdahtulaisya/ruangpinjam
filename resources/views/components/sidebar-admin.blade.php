@@ -11,9 +11,19 @@
     <!-- LOGO -->
     <div class="px-8 py-8">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white
-                        flex items-center justify-center font-bold text-lg">
-                <i class="fa-solid fa-shield-halved"></i>
+            <!-- Logo Image Container -->
+            <div class="w-14 h-14 rounded-2xl overflow-hidden
+                        bg-white
+                        flex items-center justify-center
+                        shadow-lg shadow-indigo-200/50
+                        border-2 border-white">
+                <!-- Image Logo -->
+                <img 
+                    src="{{ asset('assets-admin/img/2.svg') }}" 
+                    alt="RuangPinjam Logo"
+                    class="w-full h-full object-cover"
+                    onerror="this.onerror=null; this.src='{{ asset('assets-admin/img/2.svg') }}'; this.className='w-10 h-10 object-contain'"
+                />
             </div>
             <div class="flex flex-col">
                 <span class="text-xl font-bold text-indigo-600 tracking-wide">
@@ -39,44 +49,19 @@
             Dashboard
         </a>
 
-        <!-- MANAJEMEN USER -->
-        <div class="pt-2">
-            <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Manajemen User
-            </p>
-            
-            <a href="{{ route('admin.datapeminjam.index') }}"
-               class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
-                      {{ Route::is('admin.datapeminjam.*') 
-                         ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
-                         : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
-                <i class="fa-solid fa-users w-5 text-center"></i>
-                Data Peminjam
-            </a>
-
-            <a href="{{ route('admin.datapetugas.index') }}"
-               class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
-                      {{ Route::is('admin.datapetugas.*') 
-                         ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
-                         : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
-                <i class="fa-solid fa-user-tie w-5 text-center"></i>
-                Data Petugas
-            </a>
-        </div>
-
         <!-- MANAJEMEN DATA -->
         <div class="pt-2">
             <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 Manajemen Data
             </p>
             
-            <a href="{{ route('admin.dataperkelas.index') }}"
+            <a href="{{ route('admin.dataalat.index') }}"
                class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
-                      {{ Route::is('admin.dataperkelas.*') 
+                      {{ Route::is('admin.dataalat.*') 
                          ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
                          : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
-                <i class="fa-solid fa-school w-5 text-center"></i>
-                Data Per Kelas
+                <i class="fa-solid fa-toolbox w-5 text-center"></i>
+                Data Alat
             </a>
 
             <a href="{{ route('admin.datakategori.index') }}"
@@ -88,15 +73,42 @@
                 Data Kategori
             </a>
 
-            <a href="{{ route('admin.dataalat.index') }}"
+            
+        </div>
+        
+        <!-- MANAJEMEN USER -->
+        <div class="pt-2">
+            <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                Manajemen User
+            </p>
+            
+            <a href="{{ route('admin.datapetugas.index') }}"
                class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
-                      {{ Route::is('admin.dataalat.*') 
+                      {{ Route::is('admin.datapetugas.*') 
                          ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
                          : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
-                <i class="fa-solid fa-toolbox w-5 text-center"></i>
-                Data Alat
+                <i class="fa-solid fa-user-tie w-5 text-center"></i>
+                Data Petugas
+            </a>
+              <a href="{{ route('admin.datapeminjam.index') }}"
+               class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
+                      {{ Route::is('admin.datapeminjam.*') 
+                         ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
+                         : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
+                <i class="fa-solid fa-users w-5 text-center"></i>
+                Data Peminjam
+            </a>
+            <a href="{{ route('admin.dataperkelas.index') }}"
+               class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
+                      {{ Route::is('admin.dataperkelas.*') 
+                         ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
+                         : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
+                <i class="fa-solid fa-school w-5 text-center"></i>
+                Data Per Kelas
             </a>
         </div>
+
+        
 
         <!-- SISTEM -->
         <div class="pt-2">

@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Peminjam Dashboard</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('assets-admin/img/2.svg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -159,6 +160,6 @@ overlay.addEventListener('click', () => {
 
 
 
-
+@stack('scripts')
 </body>
 </html>

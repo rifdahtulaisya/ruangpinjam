@@ -63,7 +63,7 @@
             <span class="text-sm text-slate-600">Tampilkan:</span>
             <div class="flex bg-slate-100 rounded-lg p-1">
                 @foreach([5, 10, 15, 20] as $perPage)
-                <a href="{{ route('admin.datapeminjam.index', array_merge(request()->except('page'), ['per_page' => $perPage])) }}"
+                <a href="{{ route('admin.datakategori.index', array_merge(request()->except('page'), ['per_page' => $perPage])) }}"
                    class="px-3 py-1 rounded-md text-sm font-medium transition
                           {{ request('per_page', 5) == $perPage ? 'bg-white text-indigo-600 shadow' : 'text-slate-600 hover:text-indigo-600' }}">
                     {{ $perPage }}
@@ -138,10 +138,10 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">
+                    <td colspan="3" class="px-6 py-8 text-center text-slate-500">
                         <div class="flex flex-col items-center">
-                            <i class="fa-solid fa-users-slash text-3xl mb-3 text-slate-300"></i>
-                            <p class="text-slate-500">Tidak ada data peminjam</p>
+                            <i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-300"></i>
+                            <p class="text-slate-500">Tidak ada data kategori</p>
                             @if(request()->has('search'))
                             <p class="text-sm text-slate-400 mt-1">
                                 Hasil pencarian "<span class="font-medium">{{ request('search') }}</span>" tidak ditemukan
@@ -231,6 +231,9 @@
 @endsection
 
 @section('scripts')
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 // Auto submit search form on typing
 document.addEventListener('DOMContentLoaded', function() {
@@ -282,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Data peminjam akan dihapus permanen!",
+                text: "Data kategori akan dihapus permanen!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc2626',
@@ -305,3 +308,5 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #4f46e5 !important;
 }
 </style>
+
+@endsection

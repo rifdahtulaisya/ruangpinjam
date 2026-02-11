@@ -21,23 +21,15 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-    <!-- Button Unduh -->
-    <a href=""
-       class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600
-              text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
-              w-full sm:w-auto">
-         <i class="fa-solid fa-download"></i>
-        <span class="text-sm sm:text-base">Unduh</span>
-    </a>
 
-    <!-- Button Import -->
-    <a href=""
-       class="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600
-              text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
-              w-full sm:w-auto">
-         <i class="fa-solid fa-upload"></i>
-        <span class="text-sm sm:text-base">Import</span>
-    </a>
+   {{-- <!-- Button Import -->
+<a href="{{ route('admin.datapeminjam.import') }}"
+   class="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600
+          text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
+          w-full sm:w-auto">
+     <i class="fa-solid fa-upload"></i>
+    <span class="text-sm sm:text-base">Import</span>
+</a> --}}
 
     <!-- Button Tambah Peminjam -->
     <a href="{{ route('admin.datapeminjam.create') }}"
@@ -122,9 +114,6 @@
                                 <p class="font-semibold text-slate-700">
                                     {{ $user->name }}
                                 </p>
-                                <p class="text-xs text-slate-400">
-                                    ID: {{ $user->id }}
-                                </p>
                             </div>
                         </div>
                     </td>
@@ -135,16 +124,16 @@
                         </div>
                     </td>
 
-            <td class="px-6 py-4">
-                @if(empty(trim($user->email)))
-                    <span class="text-red-500 italic">nothing</span>
-                @else
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-envelope text-slate-400 text-xs"></i>
-                        <span class="text-slate-700">{{ $user->email }}</span>
-                    </div>
-                @endif
-            </td>
+                    <td class="px-6 py-4">
+                        @if(empty(trim($user->email)))
+                            <span class="text-red-500 italic">nothing</span>
+                        @else
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-envelope text-slate-400 text-xs"></i>
+                                <span class="text-slate-700">{{ $user->email }}</span>
+                            </div>
+                        @endif
+                    </td>
 
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 rounded-full text-xs font-medium
@@ -159,41 +148,32 @@
                         </span>
                     </td>
 
-                  
-
                     <td class="px-6 py-4">
-    <div class="flex justify-center gap-2">
-        <!-- View Button -->
-        <a href="{{ route('admin.datapeminjam.show', $user->id) }}"
-           class="w-8 h-8 flex items-center justify-center rounded-lg 
-                  bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all duration-200"
-           title="Lihat Detail">
-            <i class="fa fa-eye text-sm"></i>
-        </a>
+                        <div class="flex justify-center gap-2">
 
-        <!-- Edit Button -->
-        <a href="{{ route('admin.datapeminjam.edit', $user->id) }}"
-           class="w-8 h-8 flex items-center justify-center rounded-lg 
-                  bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-all duration-200"
-           title="Edit">
-            <i class="fa fa-edit text-sm"></i>
-        </a>
+                            <!-- Edit Button -->
+                            <a href="{{ route('admin.datapeminjam.edit', $user->id) }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg 
+                                      bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-all duration-200"
+                               title="Edit">
+                                <i class="fa fa-edit text-sm"></i>
+                            </a>
 
-        <!-- Delete Button -->
-        <form action="{{ route('admin.datapeminjam.destroy', $user->id) }}" 
-              method="POST" 
-              class="delete-form inline-block">
-            @csrf
-            @method('DELETE')
-            <button type="submit" 
-                    class="w-8 h-8 flex items-center justify-center rounded-lg 
-                           bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-200"
-                    title="Hapus">
-                <i class="fa fa-trash text-sm"></i>
-            </button>
-        </form>
-    </div>
-</td>
+                            <!-- Delete Button -->
+                            <form action="{{ route('admin.datapeminjam.destroy', $user->id) }}" 
+                                  method="POST" 
+                                  class="delete-form inline-block">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg 
+                                               bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-200"
+                                        title="Hapus">
+                                    <i class="fa fa-trash text-sm"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
                 @empty
                 <tr>
@@ -290,6 +270,9 @@
 @endsection
 
 @section('scripts')
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 // Auto submit search form on typing
 document.addEventListener('DOMContentLoaded', function() {
@@ -364,3 +347,5 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #4f46e5 !important;
 }
 </style>
+
+@endsection

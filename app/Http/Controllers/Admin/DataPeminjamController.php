@@ -107,36 +107,25 @@ public function updatePassword(Request $request)
     }
 
 
-   public function update(Request $request, $id)
+  public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);
 
     $request->validate([
-        'name' => 'required|max:100',
-        'username' => 'required|max:50|unique:users,username,' . $id,
-        'email' => 'nullable|email|unique:users,email,' . $id,
         'kelas_jurusan' => 'required|string|max:50',
     ]);
 
     $data = [
-        'name' => $request->name,
-        'username' => $request->username,
         'kelas_jurusan' => $request->kelas_jurusan,
     ];
 
-    // Email bisa kosong
-    if ($request->filled('email')) {
-        $data['email'] = $request->email;
-    } else {
-        $data['email'] = null;
-    }
-
     // Jika ada password baru (reset password oleh admin)
-    if ($request->password) {
+    if ($request->filled('password')) {
+        $request->validate([
+            'password' => 'required|min:6'
+        ]);
         $data['password'] = Hash::make($request->password);
-        $data['plain_password'] = $request->password; // Simpan plain password
-        
-        // Simpan password di session untuk ditampilkan
+        $data['plain_password'] = $request->password;
         session()->flash('generated_password', $request->password);
     }
 
@@ -144,7 +133,7 @@ public function updatePassword(Request $request)
 
     return redirect()
         ->route('admin.datapeminjam.index')
-        ->with('success', 'Data peminjam berhasil diupdate');
+        ->with('success', 'Kelas peminjam berhasil diupdate');
 }
 
     public function destroy($id)

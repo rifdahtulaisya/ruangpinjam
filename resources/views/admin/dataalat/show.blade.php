@@ -104,33 +104,7 @@
                 </div>
             </div>
 
-            <!-- Info Status -->
-            <div class="bg-white rounded-xl shadow p-6">
-                <h3 class="text-sm font-medium text-slate-600 mb-4">Status Alat</h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm text-slate-600">Ketersediaan</span>
-                            <span class="text-sm font-medium {{ $dataalat->stok > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $dataalat->stok > 0 ? 'Tersedia' : 'Habis' }}
-                            </span>
-                        </div>
-                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div class="h-full {{ $dataalat->stok > 0 ? 'bg-green-500' : 'bg-red-500' }}" 
-                                 style="width: {{ min($dataalat->stok * 10, 100) }}%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h4 class="text-sm font-medium text-blue-800 mb-2">
-                            <i class="fa-solid fa-info-circle mr-1"></i> Catatan
-                        </h4>
-                        <p class="text-xs text-blue-700">
-                            Pastikan data alat selalu diperbarui untuk monitoring inventaris.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 </div>

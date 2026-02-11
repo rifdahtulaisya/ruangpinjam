@@ -1,6 +1,6 @@
 @extends('layouts-peminjam.peminjam')
 
-@section('title', 'Dashboard Peminjam')
+@section('title', 'DASHBOARD')
 
 @section('content')
 <div class="space-y-8 animate-slide-in">

@@ -22,6 +22,9 @@ class Peminjaman extends Model
         'keterangan',
         'foto_bukti',
         'waktu_pengembalian',
+        'jenis_pengembalian', // TAMBAHKAN: 'manual' atau 'mandiri'
+        'teguran_dikirim_at', // TAMBAHKAN: waktu teguran dikirim
+        'petugas_id_teguran', // TAMBAHKAN: id petugas yang memberi teguran
     ];
 
     protected $casts = [
@@ -30,15 +33,17 @@ class Peminjaman extends Model
         'tanggal_pengembalian' => 'date',
         'tanggal_dikembalikan' => 'datetime',
         'waktu_pengembalian' => 'datetime',
+        'teguran_dikirim_at' => 'datetime',
     ];
 
-    // PERUBAHAN: Hanya 4 status utama
+    // PERUBAHAN: Hanya 4 status utama + ditegur
     public static $statuses = [
         'menunggu_peminjaman',  // Menunggu persetujuan
         'dipinjam',             // Disetujui, sedang dipinjam
         'selesai',              // Sudah dikembalikan dan selesai
         'ditolak',              // Ditolak
-        'ditegur'               // Ditegur
+        'ditegur',              // Ditegur
+        'menunggu_verifikasi'   // TAMBAHKAN: Menunggu verifikasi foto pengembalian mandiri
     ];
 
     // Setter untuk status dengan auto update stok
@@ -58,7 +63,6 @@ class Peminjaman extends Model
         }
     }
 
-
     // PERUBAHAN SEDERHANA: Logika stok
     protected function updateStokAlat($oldStatus, $newStatus)
     {
@@ -72,7 +76,6 @@ class Peminjaman extends Model
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->decrement('stok');
             }
-            
         }
         
         // 2. Jika status berubah ke 'selesai' (petugas konfirmasi pengembalian)
@@ -85,43 +88,41 @@ class Peminjaman extends Model
             // Set tanggal dikembalikan
             $this->attributes['tanggal_dikembalikan'] = now();
             $this->attributes['waktu_pengembalian'] = now();
-            
         }
         
         // 3. Jika status DITOLAK dari 'menunggu_peminjaman'
         elseif ($oldStatus === 'menunggu_peminjaman' && $newStatus === 'ditolak') {
+            // Tidak ada perubahan stok
         }
         
         // 4. Jika status dibatalkan dari 'dipinjam' ke status lain (kecuali 'selesai')
-        elseif ($oldStatus === 'dipinjam' && $newStatus !== 'selesai') {
+        elseif ($oldStatus === 'dipinjam' && $newStatus !== 'selesai' && $newStatus !== 'menunggu_verifikasi') {
             // Kembalikan stok karena dibatalkan setelah dipinjam
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->increment('stok');
             }
-            
-        }
-        
-        // 5. Jika status ditegur
-        elseif ($newStatus === 'ditegur') {
-            
         }
     }
 
-    // Relasi dan method lainnya tetap sama...
+    // Relasi dan method lainnya
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-   public function getAlatListAttribute()
-{
-    if (!$this->alat_ids || !is_array($this->alat_ids)) {
-        return collect();
+    
+    public function petugasTeguran()
+    {
+        return $this->belongsTo(User::class, 'petugas_id_teguran');
     }
 
-    return Alat::whereIn('id', $this->alat_ids)->get();
-}
+    public function getAlatListAttribute()
+    {
+        if (!$this->alat_ids || !is_array($this->alat_ids)) {
+            return collect();
+        }
 
+        return Alat::whereIn('id', $this->alat_ids)->get();
+    }
 
     public function getFotoBuktiUrlAttribute()
     {
@@ -134,5 +135,26 @@ class Peminjaman extends Model
     public function isMenungguPeminjaman()
     {
         return $this->status === 'menunggu_peminjaman';
+    }
+    
+    // Method untuk cek apakah dari pengembalian mandiri
+    public function isPengembalianMandiri()
+    {
+        return $this->jenis_pengembalian === 'mandiri';
+    }
+    
+    // Method untuk cek apakah ada teguran
+    public function hasTeguran()
+    {
+        return $this->status === 'ditegur' && $this->keterangan && strpos($this->keterangan, 'TEGURAN:') === 0;
+    }
+    
+    // Method untuk get teks teguran
+    public function getTeksTeguran()
+    {
+        if ($this->hasTeguran()) {
+            return str_replace('TEGURAN: ', '', $this->keterangan);
+        }
+        return null;
     }
 }

@@ -96,59 +96,6 @@
     </div>
     @endif
 
-    <!-- Statistik Card -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- ... (statistik cards tetap sama) ... -->
-        <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-emerald-800 font-medium">Total Peminjaman</p>
-                    <p class="text-2xl font-bold text-emerald-900 mt-1">{{ $data['general']['total_peminjaman'] }}</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <i class="fas fa-clipboard-list text-emerald-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-green-800 font-medium">Selesai</p>
-                    <p class="text-2xl font-bold text-green-900 mt-1">{{ $data['general']['selesai'] }}</p>
-                    <p class="text-xs text-green-600 mt-1">{{ $data['general']['total_peminjaman'] > 0 ? round(($data['general']['selesai'] / $data['general']['total_peminjaman']) * 100, 1) : 0 }}%</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-blue-800 font-medium">Sedang Dipinjam</p>
-                    <p class="text-2xl font-bold text-blue-900 mt-1">{{ $data['general']['diproses'] }}</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                    <i class="fas fa-hand-holding text-blue-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-yellow-800 font-medium">Rata-rata Hari</p>
-                    <p class="text-2xl font-bold text-yellow-900 mt-1">{{ $data['time_stats']['avg_borrow_days'] }}</p>
-                    <p class="text-xs text-yellow-600 mt-1">hari/peminjaman</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                    <i class="fas fa-calendar-alt text-yellow-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Tabel Detail Peminjaman -->
     <div class="bg-white rounded-2xl shadow-lg p-6">

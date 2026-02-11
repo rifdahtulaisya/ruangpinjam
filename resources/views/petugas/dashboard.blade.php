@@ -1,6 +1,7 @@
 @extends('layouts-petugas.petugas')
 
-@section('title', 'Dashboard Peminjam')
+@section('title', 'DASHBOARD')
+@section('subtitle', 'Selamat datang, Petugas')
 
 @section('content')
 <div class="space-y-8 animate-slide-in">

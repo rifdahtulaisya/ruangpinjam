@@ -43,29 +43,29 @@ class KategoriController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Kategori $kategori)
+    public function show(Kategori $datakategori)
     {
-        return view('admin.datakategori.show', compact('kategori'));
+        return view('admin.datakategori.show', compact('datakategori'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Kategori $kategori)
+    public function edit(Kategori $datakategori)
     {
-        return view('admin.datakategori.edit', compact('kategori'));
+        return view('admin.datakategori.edit', compact('datakategori'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Kategori $kategori)
+    public function update(Request $request, Kategori $datakategori)
     {
         $request->validate([
-            'nama_kategori' => 'required|string|max:255|unique:kategoris,nama_kategori,' . $kategori->id,
+            'nama_kategori' => 'required|string|max:255|unique:kategoris,nama_kategori,' . $datakategori->id,
         ]);
 
-        $kategori->update($request->all());
+        $datakategori->update($request->all());
 
         return redirect()->route('admin.datakategori.index')
             ->with('success', 'Kategori berhasil diperbarui.');
@@ -74,9 +74,9 @@ class KategoriController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Kategori $kategori)
+    public function destroy(Kategori $datakategori)
     {
-        $kategori->delete();
+        $datakategori->delete();
 
         return redirect()->route('admin.datakategori.index')
             ->with('success', 'Kategori berhasil dihapus.');

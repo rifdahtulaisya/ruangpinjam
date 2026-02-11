@@ -24,6 +24,7 @@ class KelolaPeminjamanController extends Controller
 
         $counts = [
             'menunggu_peminjaman' => Peminjaman::where('status', 'menunggu_peminjaman')->count(),
+            'menunggu_verifikasi' => Peminjaman::where('status', 'menunggu_verifikasi')->count(),
             'dipinjam' => Peminjaman::where('status', 'dipinjam')->count(),
             'selesai' => Peminjaman::where('status', 'selesai')->count(),
             'ditolak' => Peminjaman::where('status', 'ditolak')->count(),
@@ -35,7 +36,7 @@ class KelolaPeminjamanController extends Controller
 
     public function detail($id)
     {
-        $peminjaman = Peminjaman::with(['user', 'alat'])->findOrFail($id);
+        $peminjaman = Peminjaman::with(['user', 'petugasTeguran'])->findOrFail($id);
         
         return response()->json([
             'id' => $peminjaman->id,
@@ -45,7 +46,7 @@ class KelolaPeminjamanController extends Controller
                 'kelas' => $peminjaman->user->kelas ?? '-',
                 'phone' => $peminjaman->user->phone ?? '-',
             ],
-            'alat' => $peminjaman->alat->map(function($alat) {
+            'alat' => $peminjaman->alatList->map(function($alat) {
                 return [
                     'id' => $alat->id,
                     'nama' => $alat->nama_alat,
@@ -58,30 +59,35 @@ class KelolaPeminjamanController extends Controller
             'status' => $peminjaman->status,
             'keterangan' => $peminjaman->keterangan,
             'foto_bukti' => $peminjaman->foto_bukti_url,
+            'jenis_pengembalian' => $peminjaman->jenis_pengembalian,
             'created_at' => $peminjaman->created_at->format('d/m/Y H:i'),
             'tanggal_peminjaman' => $peminjaman->tanggal_peminjaman->format('d/m/Y'),
             'tanggal_pengembalian' => $peminjaman->tanggal_pengembalian->format('d/m/Y'),
             'tanggal_dikembalikan' => $peminjaman->tanggal_dikembalikan 
                 ? $peminjaman->tanggal_dikembalikan->format('d/m/Y H:i') 
                 : null,
+            'teguran' => $peminjaman->hasTeguran() ? [
+                'teks' => $peminjaman->getTeksTeguran(),
+                'dikirim_at' => $peminjaman->teguran_dikirim_at ? 
+                    $peminjaman->teguran_dikirim_at->format('d/m/Y H:i') : null,
+                'petugas' => $peminjaman->petugasTeguran ? $peminjaman->petugasTeguran->name : null
+            ] : null
         ]);
     }
 
     public function konfirmasiPengembalian($id)
     {
         try {
-
             $peminjaman = Peminjaman::findOrFail($id);
             
-            if ($peminjaman->status !== 'dipinjam') {
+            if (!in_array($peminjaman->status, ['dipinjam', 'menunggu_verifikasi'])) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Peminjaman tidak dalam status dipinjam'
+                    'message' => 'Peminjaman tidak dalam status yang dapat dikonfirmasi'
                 ], 400);
             }
             
             $peminjaman->status = 'selesai';
-            $peminjaman->tanggal_dikembalikan = now();
             $peminjaman->save();
             
             LogAktivitas::create([
@@ -97,19 +103,16 @@ class KelolaPeminjamanController extends Controller
             ]);
             
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan'
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
-
         }
     }
 
     public function setujuiPeminjaman($id)
     {
         try {
-
             $peminjaman = Peminjaman::findOrFail($id);
             
             if ($peminjaman->status !== 'menunggu_peminjaman') {
@@ -135,19 +138,16 @@ class KelolaPeminjamanController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan'
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
-
         }
     }
 
     public function tolakPeminjaman(Request $request, $id)
     {
         try {
-
             $request->validate([
                 'alasan' => 'required|string|max:500',
             ]);
@@ -178,41 +178,67 @@ class KelolaPeminjamanController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan'
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
-
         }
     }
 
+    /**
+     * Kirim teguran untuk pengembalian mandiri
+     * Button teguran hanya muncul jika peminjaman adalah pengembalian mandiri
+     */
     public function tegur(Request $request, $id)
     {
-        $request->validate([
-            'alasan' => 'required|string',
-            'deskripsi' => 'required|string|max:500',
-        ]);
-        
-        $peminjaman = Peminjaman::findOrFail($id);
-        
-        $peminjaman->status = 'ditegur';
-        $peminjaman->keterangan = 'TEGURAN: ' . $request->alasan . ' - ' . $request->deskripsi;
-        $peminjaman->save();
-        
-        LogAktivitas::create([
-            'user_id' => Auth::id(),
-            'role' => Auth::user()->role,
-            'aktivitas' => 'Memberi teguran pada peminjaman #' . $id,
-            'modul' => 'peminjaman'
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Teguran berhasil dikirim'
-        ]);
+        try {
+            $request->validate([
+                'alasan' => 'required|string',
+                'deskripsi' => 'required|string|max:500',
+            ]);
+            
+            $peminjaman = Peminjaman::findOrFail($id);
+            
+            // Cek apakah ini pengembalian mandiri?
+            // Button teguran hanya muncul untuk pengembalian mandiri
+            if ($peminjaman->jenis_pengembalian !== 'mandiri') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Teguran hanya dapat diberikan untuk pengembalian mandiri'
+                ], 400);
+            }
+            
+            // Simpan teguran
+            $peminjaman->status = 'ditegur';
+            $peminjaman->keterangan = 'TEGURAN: ' . $request->alasan . ' - ' . $request->deskripsi;
+            $peminjaman->teguran_dikirim_at = now();
+            $peminjaman->petugas_id_teguran = Auth::id();
+            $peminjaman->save();
+            
+            // Log aktivitas
+            LogAktivitas::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role,
+                'aktivitas' => 'Memberi teguran pada peminjaman #' . $id . ' (Pengembalian Mandiri)',
+                'modul' => 'pengembalian_mandiri'
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Teguran berhasil dikirim. Peminjam akan melihat teguran dan diminta foto ulang.'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
+    /**
+     * Upload foto bukti (manual dari petugas)
+     */
     public function uploadFotoBukti(Request $request, $id)
     {
         $request->validate([
@@ -231,6 +257,49 @@ class KelolaPeminjamanController extends Controller
             'message' => 'Foto bukti berhasil diupload',
             'foto_url' => asset('storage/' . $path)
         ]);
+    }
+
+    /**
+     * Verifikasi pengembalian mandiri dan konfirmasi
+     */
+    public function verifikasiMandiri(Request $request, $id)
+    {
+        try {
+            $peminjaman = Peminjaman::findOrFail($id);
+            
+            if ($peminjaman->status !== 'menunggu_verifikasi') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Peminjaman tidak dalam status menunggu verifikasi'
+                ], 400);
+            }
+            
+            // Jika ini pengembalian mandiri yang ditegur, reset status
+            if ($peminjaman->jenis_pengembalian === 'mandiri' && $peminjaman->status === 'ditegur') {
+                $peminjaman->status = 'dipinjam';
+                $peminjaman->save();
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status dikembalikan ke Dipinjam. Peminjam dapat melakukan foto ulang.'
+                ]);
+            }
+            
+            // Verifikasi biasa
+            $peminjaman->status = 'selesai';
+            $peminjaman->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengembalian mandiri berhasil diverifikasi'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function export(Request $request)

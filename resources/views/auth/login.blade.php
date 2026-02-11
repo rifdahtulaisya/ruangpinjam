@@ -23,17 +23,26 @@
         <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8">
 
             <!-- Logo -->
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 mx-auto mb-3 rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 flex items-center justify-center shadow-lg">
-                    <i class="fas fa-school text-white text-xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-[#132440]">
-                    School<span class="text-blue-600">Loan</span>Sphere
-                </h2>
-                <p class="text-sm text-gray-500 mt-1">
-                    Login ke sistem peminjaman
-                </p>
-            </div>
+<div class="text-center mb-6">
+    <div class="w-14 h-14 mx-auto mb-3 rounded-xl 
+                bg-white 
+                flex items-center justify-center shadow-lg overflow-hidden">
+
+        <img src="{{ asset('assets-admin/img/2.svg') }}" 
+             alt="Logo RuangPinjam"
+             class="w-10 h-10 object-contain">
+             
+    </div>
+
+    <h2 class="text-2xl font-bold text-[#132440]">
+        Ruang<span class="text-blue-600">Pinjam</span>
+    </h2>
+
+    <p class="text-sm text-gray-500 mt-1">
+        Login ke sistem peminjaman
+    </p>
+</div>
+
 
             <!-- Form -->
             <form method="POST" action="{{ route('login') }}" class="space-y-5">

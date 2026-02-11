@@ -5,159 +5,222 @@
 @section('content')
     <div class="space-y-8 animate-slide-in">
 
-        <!-- Filter Section dengan Export Button di kanan -->
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex flex-wrap gap-3">
-                    <div class="relative w-64">
-                        <input type="hidden" id="statusFilter" value="{{ request('status') }}">
-                        <button type="button" id="statusTrigger"
-                            class="w-full pl-4 pr-12 py-3.5 border-2 border-emerald-200 rounded-2xl 
-                                   focus:ring-3 focus:ring-emerald-500/30 focus:border-emerald-500 
-                                   transition-all duration-200 bg-white text-left text-slate-700 
-                                   font-medium hover:border-emerald-300 shadow-sm flex items-center justify-between">
-                            <span id="statusLabel">
-                                @switch(request('status'))
-                                    @case('menunggu')
-                                        Menunggu Konfirmasi
-                                    @break
+<!-- Filter Section dengan Statistik Cards -->
+<div class="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+    <!-- Bagian Filter -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-wrap gap-3">
+            <div class="relative w-64">
+                <input type="hidden" id="statusFilter" value="{{ request('status') }}">
+                <button type="button" id="statusTrigger"
+                    class="w-full pl-4 pr-12 py-3.5 border-2 border-emerald-200 rounded-2xl 
+                           focus:ring-3 focus:ring-emerald-500/30 focus:border-emerald-500 
+                           transition-all duration-200 bg-white text-left text-slate-700 
+                           font-medium hover:border-emerald-300 shadow-sm flex items-center justify-between">
+                    <span id="statusLabel">
+                        @switch(request('status'))
+                            @case('menunggu_peminjaman')
+                                Menunggu Peminjaman
+                            @break
+                            @case('menunggu_pengembalian')
+                                Menunggu Pengembalian
+                            @break
+                            @case('dipinjam')
+                                Sedang Dipinjam
+                            @break
+                            @case('selesai')
+                                Selesai
+                            @break
+                            @case('ditolak')
+                                Ditolak
+                            @break
+                            @case('ditegur')
+                                Ditegur
+                            @break
+                            @default
+                                Semua Status
+                        @endswitch
+                    </span>
+                    <i class="fas fa-chevron-down text-slate-500 text-sm transition-transform duration-200"></i>
+                </button>
 
-                                    @case('dipinjam')
-                                        Sedang Dipinjam
-                                    @break
-
-                                    @case('selesai')
-                                        Selesai
-                                    @break
-
-                                    @case('ditolak')
-                                        Ditolak
-                                    @break
-
-                                    @case('ditegur')
-                                        Ditegur
-                                    @break
-
-                                    @default
-                                        Semua Status
-                                @endswitch
+                <div id="statusOptions"
+                    class="absolute z-50 w-full mt-1 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden hidden animate-fade-in">
+                    <div class="py-2">
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-emerald-50 cursor-pointer"
+                            data-value="" data-label="Semua Status">
+                            <i class="fas fa-list text-slate-500 w-4"></i> Semua Status
+                        </div>
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-yellow-50 cursor-pointer"
+                            data-value="menunggu_peminjaman" data-label="Menunggu Peminjaman">
+                            <i class="fas fa-clock text-yellow-500 w-4"></i> Menunggu Peminjaman
+                            <span class="ml-auto bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+                                {{ $counts['menunggu_peminjaman'] ?? 0 }}
                             </span>
-                            <i class="fas fa-chevron-down text-slate-500 text-sm transition-transform duration-200"></i>
-                        </button>
-
-                        <div id="statusOptions"
-                            class="absolute z-50 w-full mt-1 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden hidden animate-fade-in">
-                            <div class="py-2">
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-emerald-50 cursor-pointer"
-                                    data-value="" data-label="Semua Status">
-                                    <i class="fas fa-list text-slate-500 w-4"></i> Semua Status
-                                </div>
-                                <!-- Di blade petugas -->
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-yellow-50 cursor-pointer"
-                                    data-value="menunggu_peminjaman" data-label="Menunggu Peminjaman">
-                                    <i class="fas fa-clock text-yellow-500 w-4"></i> Menunggu Peminjaman
-                                    <span class="ml-auto bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
-                                        {{ $counts['menunggu_peminjaman'] ?? 0 }}
-                                    </span>
-                                </div>
-
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 cursor-pointer"
-                                    data-value="menunggu_pengembalian" data-label="Menunggu Pengembalian">
-                                    <i class="fas fa-hourglass-half text-blue-500 w-4"></i> Menunggu Pengembalian
-                                    <span class="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                                        {{ $counts['menunggu_pengembalian'] ?? 0 }}
-                                    </span>
-                                </div>
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 cursor-pointer"
-                                    data-value="dipinjam" data-label="Sedang Dipinjam">
-                                    <i class="fas fa-hand-holding text-green-500 w-4"></i> Sedang Dipinjam
-                                    <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                                        {{ $counts['dipinjam'] ?? 0 }}
-                                    </span>
-                                </div>
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 cursor-pointer"
-                                    data-value="selesai" data-label="Selesai">
-                                    <i class="fas fa-check-circle text-purple-500 w-4"></i> Selesai
-                                </div>
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 cursor-pointer"
-                                    data-value="ditolak" data-label="Ditolak">
-                                    <i class="fas fa-times-circle text-red-500 w-4"></i> Ditolak
-                                </div>
-                                <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-orange-50 cursor-pointer"
-                                    data-value="ditegur" data-label="Ditegur">
-                                    <i class="fas fa-exclamation-triangle text-orange-500 w-4"></i> Ditegur
-                                </div>
-                            </div>
+                        </div>
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 cursor-pointer"
+                            data-value="menunggu_pengembalian" data-label="Menunggu Pengembalian">
+                            <i class="fas fa-hourglass-half text-blue-500 w-4"></i> Menunggu Pengembalian
+                            <span class="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                                {{ $counts['menunggu_pengembalian'] ?? 0 }}
+                            </span>
+                        </div>
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-green-50 cursor-pointer"
+                            data-value="dipinjam" data-label="Sedang Dipinjam">
+                            <i class="fas fa-hand-holding text-green-500 w-4"></i> Sedang Dipinjam
+                            <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                {{ $counts['dipinjam'] ?? 0 }}
+                            </span>
+                        </div>
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 cursor-pointer"
+                            data-value="selesai" data-label="Selesai">
+                            <i class="fas fa-check-circle text-purple-500 w-4"></i> Selesai
+                        </div>
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 cursor-pointer"
+                            data-value="ditolak" data-label="Ditolak">
+                            <i class="fas fa-times-circle text-red-500 w-4"></i> Ditolak
+                        </div>
+                        <div class="option flex items-center gap-3 px-4 py-2.5 hover:bg-orange-50 cursor-pointer"
+                            data-value="ditegur" data-label="Ditegur">
+                            <i class="fas fa-exclamation-triangle text-orange-500 w-4"></i> Ditegur
                         </div>
                     </div>
-
-                    <button onclick="resetFilter()"
-                        class="px-5 py-3.5 border-2 border-slate-200 rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center gap-3 group shadow-sm">
-                        <i class="fas fa-redo text-slate-600 group-hover:rotate-180 transition-transform duration-500"></i>
-                        <span class="font-medium text-slate-700">Reset</span>
-                    </button>
                 </div>
+            </div>
+
+            <button onclick="resetFilter()"
+                class="px-5 py-3.5 border-2 border-slate-200 rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center gap-3 group shadow-sm">
+                <i class="fas fa-redo text-slate-600 group-hover:rotate-180 transition-transform duration-500"></i>
+                <span class="font-medium text-slate-700">Reset Filter</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="border-t border-slate-200"></div>
+
+    <!-- Statistik Cards - Diletakkan DI DALAM filter section -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Card Menunggu Peminjaman -->
+        <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-yellow-800 font-medium flex items-center gap-1">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                        Menunggu Peminjaman
+                    </p>
+                    <p class="text-2xl font-bold text-yellow-900 mt-1">{{ $counts['menunggu_peminjaman'] ?? 0 }}</p>
+                    <p class="text-xs text-yellow-600 mt-1">Butuh persetujuan</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3 text-xs text-yellow-700">
+                @if(($counts['menunggu_peminjaman'] ?? 0) > 0)
+                    <span class="bg-yellow-200 px-2 py-1 rounded-full">
+                        {{ $counts['menunggu_peminjaman'] }} peminjaman perlu disetujui
+                    </span>
+                @endif
             </div>
         </div>
 
-        <!-- Di blade petugas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Card Menunggu Peminjaman -->
-            <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200 rounded-2xl p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-yellow-800 font-medium">Menunggu Peminjaman</p>
-                        <p class="text-2xl font-bold text-yellow-900 mt-1">{{ $counts['menunggu_peminjaman'] ?? 0 }}</p>
-                        <p class="text-xs text-yellow-600 mt-1">Butuh persetujuan</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                    </div>
+        <!-- Card Menunggu Pengembalian -->
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-blue-800 font-medium flex items-center gap-1">
+                        <i class="fas fa-hourglass-half text-blue-600"></i>
+                        Menunggu Pengembalian
+                    </p>
+                    <p class="text-2xl font-bold text-blue-900 mt-1">{{ $counts['menunggu_pengembalian'] ?? 0 }}</p>
+                    <p class="text-xs text-blue-600 mt-1">Butuh konfirmasi</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                    <i class="fas fa-hourglass-half text-blue-600 text-xl"></i>
                 </div>
             </div>
-
-            <!-- Card Menunggu Pengembalian -->
-            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-blue-800 font-medium">Menunggu Pengembalian</p>
-                        <p class="text-2xl font-bold text-blue-900 mt-1">{{ $counts['menunggu_pengembalian'] ?? 0 }}</p>
-                        <p class="text-xs text-blue-600 mt-1">Butuh konfirmasi</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                        <i class="fas fa-hourglass-half text-blue-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Dipinjam -->
-            <div class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-2xl p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-green-800 font-medium">Dipinjam</p>
-                        <p class="text-2xl font-bold text-green-900 mt-1">{{ $counts['dipinjam'] ?? 0 }}</p>
-                        <p class="text-xs text-green-600 mt-1">Belum dikembalikan</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                        <i class="fas fa-hand-holding text-green-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Selesai -->
-            <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-purple-800 font-medium">Selesai</p>
-                        <p class="text-2xl font-bold text-purple-900 mt-1">{{ $counts['selesai'] ?? 0 }}</p>
-                        <p class="text-xs text-purple-600 mt-1">Sudah dikembalikan</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                        <i class="fas fa-check-circle text-purple-600 text-xl"></i>
-                    </div>
-                </div>
+            <div class="mt-3 text-xs text-blue-700">
+                @if(($counts['menunggu_pengembalian'] ?? 0) > 0)
+                    <span class="bg-blue-200 px-2 py-1 rounded-full">
+                        {{ $counts['menunggu_pengembalian'] }} peminjaman menunggu
+                    </span>
+                @endif
             </div>
         </div>
+
+        <!-- Card Dipinjam -->
+        <div class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-green-800 font-medium flex items-center gap-1">
+                        <i class="fas fa-hand-holding text-green-600"></i>
+                        Dipinjam
+                    </p>
+                    <p class="text-2xl font-bold text-green-900 mt-1">{{ $counts['dipinjam'] ?? 0 }}</p>
+                    <p class="text-xs text-green-600 mt-1">Belum dikembalikan</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                    <i class="fas fa-hand-holding text-green-600 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3 text-xs text-green-700">
+                @if(($counts['dipinjam'] ?? 0) > 0)
+                    <span class="bg-green-200 px-2 py-1 rounded-full">
+                        {{ $counts['dipinjam'] }} alat sedang dipinjam
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <!-- Card Selesai -->
+        <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-purple-800 font-medium flex items-center gap-1">
+                        <i class="fas fa-check-circle text-purple-600"></i>
+                        Selesai
+                    </p>
+                    <p class="text-2xl font-bold text-purple-900 mt-1">{{ $counts['selesai'] ?? 0 }}</p>
+                    <p class="text-xs text-purple-600 mt-1">Sudah dikembalikan</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                    <i class="fas fa-check-circle text-purple-600 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-3 text-xs text-purple-700">
+                @if(($counts['selesai'] ?? 0) > 0)
+                    <span class="bg-purple-200 px-2 py-1 rounded-full">
+                        Total {{ $counts['selesai'] }} peminjaman selesai
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Bar (Opsional) -->
+    @if(($counts['ditegur'] ?? 0) > 0 || ($counts['ditolak'] ?? 0) > 0)
+    <div class="flex flex-wrap gap-3 pt-2">
+        @if(($counts['ditegur'] ?? 0) > 0)
+        <div class="flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200 rounded-lg">
+            <i class="fas fa-exclamation-triangle text-orange-600"></i>
+            <span class="text-sm text-orange-700">
+                <span class="font-bold">{{ $counts['ditegur'] }}</span> peminjaman ditegur
+            </span>
+        </div>
+        @endif
+        
+        @if(($counts['ditolak'] ?? 0) > 0)
+        <div class="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg">
+            <i class="fas fa-times-circle text-red-600"></i>
+            <span class="text-sm text-red-700">
+                <span class="font-bold">{{ $counts['ditolak'] }}</span> peminjaman ditolak
+            </span>
+        </div>
+        @endif
+    </div>
+    @endif
+</div>
 
         <!-- Table Section -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -238,8 +301,9 @@
                                         class="px-2 py-1 rounded-full text-xs font-medium border {{ $statusColors[$peminjaman->status] ?? 'bg-gray-100 text-gray-800 border-gray-200' }}">
                                         {{ ucfirst(str_replace('_', ' ', $peminjaman->status)) }}
                                     </span>
-                                
+
                                 </td>
+                                <!-- Di bagian action buttons, sekitar line 200 -->
                                 <td class="py-4 px-6">
                                     <div class="flex flex-wrap gap-2">
                                         <!-- Detail Button -->
@@ -250,7 +314,6 @@
                                             <span class="hidden md:inline">Detail</span>
                                         </button>
 
-                                        <!-- Di bagian action buttons -->
                                         @if ($peminjaman->status == 'menunggu_peminjaman')
                                             <!-- Tombol Setujui -->
                                             <button onclick="konfirmasiSetujui({{ $peminjaman->id }})"
@@ -269,6 +332,61 @@
                                             </button>
                                         @endif
 
+                                        @if ($peminjaman->status == 'menunggu_verifikasi')
+                                            <!-- Tombol Lihat Foto -->
+                                            @if ($peminjaman->foto_bukti)
+                                                <button onclick="showFotoModal('{{ $peminjaman->foto_bukti_url }}')"
+                                                    class="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition flex items-center gap-1 text-sm"
+                                                    title="Lihat Foto">
+                                                    <i class="fas fa-image text-xs"></i>
+                                                    <span class="hidden md:inline">Lihat Foto</span>
+                                                </button>
+                                            @endif
+
+                                            <!-- Tombol Konfirmasi Pengembalian -->
+                                            <button onclick="konfirmasiPengembalian({{ $peminjaman->id }})"
+                                                class="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition flex items-center gap-1 text-sm"
+                                                title="Konfirmasi Pengembalian">
+                                                <i class="fas fa-check-circle text-xs"></i>
+                                                <span class="hidden md:inline">Konfirmasi</span>
+                                            </button>
+
+                                            <!-- BUTTON TEGURAN - Hanya muncul untuk pengembalian mandiri -->
+                                            @if ($peminjaman->jenis_pengembalian === 'mandiri')
+                                                <button onclick="showTeguranModal({{ $peminjaman->id }})"
+                                                    class="px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition flex items-center gap-1 text-sm border border-orange-200"
+                                                    title="Beri Teguran">
+                                                    <i class="fas fa-exclamation-triangle text-xs"></i>
+                                                    <span class="hidden md:inline">Teguran</span>
+                                                </button>
+                                            @endif
+                                        @endif
+
+                                        @if ($peminjaman->status == 'ditegur')
+                                            <!-- Tombol Lihat Foto -->
+                                            @if ($peminjaman->foto_bukti)
+                                                <button onclick="showFotoModal('{{ $peminjaman->foto_bukti_url }}')"
+                                                    class="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition flex items-center gap-1 text-sm">
+                                                    <i class="fas fa-image text-xs"></i>
+                                                    <span>Foto</span>
+                                                </button>
+                                            @endif
+
+                                            <!-- Tombol Konfirmasi - Muncul kembali setelah teguran -->
+                                            <button onclick="konfirmasiPengembalian({{ $peminjaman->id }})"
+                                                class="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition flex items-center gap-1 text-sm border border-green-200">
+                                                <i class="fas fa-check-circle text-xs"></i>
+                                                <span>Konfirmasi</span>
+                                            </button>
+
+                                            <!-- Tombol Reset ke Dipinjam (untuk foto ulang) -->
+                                            <button onclick="resetKeDipinjam({{ $peminjaman->id }})"
+                                                class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center gap-1 text-sm">
+                                                <i class="fas fa-undo text-xs"></i>
+                                                <span>Reset</span>
+                                            </button>
+                                        @endif
+
                                         @if ($peminjaman->status == 'dipinjam')
                                             <!-- Tombol Konfirmasi Pengembalian (langsung selesai) -->
                                             <button onclick="konfirmasiPengembalian({{ $peminjaman->id }})"
@@ -276,14 +394,6 @@
                                                 title="Konfirmasi Pengembalian">
                                                 <i class="fas fa-check-circle text-xs"></i>
                                                 <span class="hidden md:inline">Konfirmasi</span>
-                                            </button>
-
-                                            <!-- Tombol Tegur (opsional) -->
-                                            <button onclick="showTeguranModal({{ $peminjaman->id }})"
-                                                class="px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition flex items-center gap-1 text-sm"
-                                                title="Beri Teguran">
-                                                <i class="fas fa-exclamation-triangle text-xs"></i>
-                                                <span class="hidden md:inline">Tegur</span>
                                             </button>
                                         @endif
 
@@ -384,32 +494,24 @@
                                         <i class="fas fa-eye mr-1"></i> Detail
                                     </button>
 
-
-                                    @if ($peminjaman->status == 'menunggu_peminjaman')
-                                        <!-- Tombol Setujui -->
-                                        <button onclick="konfirmasiAksi({{ $peminjaman->id }}, 'setujui')"
-                                            class="flex-1 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition text-sm">
-                                            <i class="fas fa-check mr-1"></i> Setujui
-                                        </button>
-
-                                        <!-- Tombol Tolak -->
-                                        <button onclick="konfirmasiAksi({{ $peminjaman->id }}, 'tolak')"
-                                            class="flex-1 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition text-sm">
-                                            <i class="fas fa-times mr-1"></i> Tolak
+                                    @if ($peminjaman->status == 'menunggu_verifikasi' && $peminjaman->jenis_pengembalian === 'mandiri')
+                                        <button onclick="showTeguranModal({{ $peminjaman->id }})"
+                                            class="px-3 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition text-sm border border-orange-200">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i> Tegur
                                         </button>
                                     @endif
 
-                                    @if ($peminjaman->status == 'menunggu_pengembalian')
-                                        <button onclick="showKonfirmasiPengembalianModal({{ $peminjaman->id }})"
+                                    @if ($peminjaman->status == 'menunggu_verifikasi' || $peminjaman->status == 'ditegur')
+                                        <button onclick="konfirmasiPengembalian({{ $peminjaman->id }})"
                                             class="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-sm">
                                             <i class="fas fa-check-circle mr-1"></i> Konfirmasi
                                         </button>
                                     @endif
 
                                     @if ($peminjaman->status == 'dipinjam')
-                                        <button onclick="konfirmasiLangsungKembali({{ $peminjaman->id }})"
-                                            class="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-sm">
-                                            <i class="fas fa-check mr-1"></i> Kembalikan
+                                        <button onclick="konfirmasiPengembalian({{ $peminjaman->id }})"
+                                            class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-sm">
+                                            <i class="fas fa-check-circle mr-1"></i> Kembalikan
                                         </button>
                                     @endif
                                 </div>
@@ -767,568 +869,726 @@
         </div>
     </div>
 
-    <script>
-        // Variables untuk menyimpan ID peminjaman
-        let currentPeminjamanId = null;
-        let currentAction = null;
+<script>
+    // Variables untuk menyimpan ID peminjaman
+    let currentPeminjamanId = null;
+    let currentAction = null;
 
-        function konfirmasiSetujui(peminjamanId) {
-            Swal.fire({
-                title: 'Setujui Peminjaman',
-                text: 'Apakah Anda yakin ingin menyetujui peminjaman ini? Stok alat akan berkurang.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Setujui',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/petugas/kelolapeminjaman/${peminjamanId}/setujui`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    icon: 'success'
-                                }).then(() => location.reload());
-                            } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: data.message,
-                                    icon: 'error'
-                                });
-                            }
-                        });
-                }
-            });
-        }
+    // HAPUS fungsi showKembalikanManual dari sini karena ini untuk halaman peminjam, bukan petugas
+    // HAPUS event listener untuk tombol Kembalikan Langsung
 
-
-function konfirmasiTolak(peminjamanId) {
-    Swal.fire({
-        title: 'Tolak Peminjaman',
-        input: 'textarea',
-        inputLabel: 'Alasan Penolakan',
-        inputPlaceholder: 'Masukkan alasan penolakan...',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Tolak',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed && result.value) {
-            fetch(`/petugas/kelolapeminjaman/${peminjamanId}/tolak`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ alasan: result.value })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.message,
-                        icon: 'success'
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire({
-                        title: 'Gagal!',
-                        text: data.message,
-                        icon: 'error'
-                    });
-                }
-            });
-        }
-    });
-}
-        function showSetujuiModal(peminjamanId) {
-            Swal.fire({
-                title: 'Setujui Peminjaman',
-                text: 'Apakah Anda yakin ingin menyetujui peminjaman ini? Stok alat akan otomatis berkurang.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Setujui',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Gunakan route name yang benar
-                    fetch(`/petugas/kelolapeminjaman/${peminjamanId}/setujui`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    confirmButtonColor: '#10b981',
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: data.message || 'Gagal menyetujui peminjaman',
-                                    icon: 'error',
-                                    confirmButtonColor: '#ef4444'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Error!',
-                                text: 'Terjadi kesalahan. Silakan coba lagi.',
-                                icon: 'error',
-                                confirmButtonColor: '#ef4444'
-                            });
-                        });
-                }
-            });
-        }
-
-        function showTolakModal(peminjamanId) {
-            Swal.fire({
-                title: 'Tolak Peminjaman',
-                input: 'textarea',
-                inputLabel: 'Alasan Penolakan',
-                inputPlaceholder: 'Masukkan alasan penolakan...',
-                inputAttributes: {
-                    maxlength: 500
-                },
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Tolak',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-                inputValidator: (value) => {
-                    if (!value || value.trim() === '') {
-                        return 'Alasan penolakan harus diisi!';
+    // PERBAIKI: fungsi konfirmasiSetujui - pastikan route-nya benar
+    function konfirmasiSetujui(peminjamanId) {
+        Swal.fire({
+            title: 'Setujui Peminjaman',
+            text: 'Apakah Anda yakin ingin menyetujui peminjaman ini? Stok alat akan berkurang.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Setujui',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mohon tunggu',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Gunakan route name yang benar
-                    fetch(`/petugas/kelolapeminjaman/${peminjamanId}/tolak`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                alasan: result.value
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    confirmButtonColor: '#10b981',
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: data.message || 'Gagal menolak peminjaman',
-                                    icon: 'error',
-                                    confirmButtonColor: '#ef4444'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Error!',
-                                text: 'Terjadi kesalahan. Silakan coba lagi.',
-                                icon: 'error',
-                                confirmButtonColor: '#ef4444'
-                            });
-                        });
-                }
-            });
-        }
-
-        function konfirmasiPengembalian(peminjamanId) {
-    Swal.fire({
-        title: 'Konfirmasi Pengembalian',
-        text: 'Apakah alat sudah dikembalikan? Peminjaman akan langsung selesai dan stok alat bertambah.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3b82f6',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Konfirmasi',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/petugas/kelolapeminjaman/${peminjamanId}/konfirmasi-pengembalian`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.message,
-                        icon: 'success'
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire({
-                        title: 'Gagal!',
-                        text: data.message,
-                        icon: 'error'
-                    });
-                }
-            });
-        }
-    });
-}
-
-        // Filter Dropdown
-        document.addEventListener('DOMContentLoaded', function() {
-            const trigger = document.getElementById('statusTrigger');
-            const dropdown = document.getElementById('statusOptions');
-            const label = document.getElementById('statusLabel');
-            const options = document.querySelectorAll('.option');
-
-            // Toggle dropdown
-            trigger.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.classList.toggle('hidden');
-            });
-
-            // Select option
-            options.forEach(option => {
-                option.addEventListener('click', function() {
-                    const value = this.dataset.value;
-                    const text = this.dataset.label;
-                    label.innerText = text;
-                    dropdown.classList.add('hidden');
-
-                    // Redirect filter
-                    let url = new URL(window.location.href);
-                    if (value) {
-                        url.searchParams.set('status', value);
-                    } else {
-                        url.searchParams.delete('status');
-                    }
-                    url.searchParams.delete('page');
-                    window.location.href = url.toString();
                 });
-            });
+                
+                fetch(`/petugas/kelolapeminjaman/${peminjamanId}/setujui`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Gagal menyetujui peminjaman',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Terjadi kesalahan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                });
+            }
+        });
+    }
 
-            // Close when click outside
-            document.addEventListener('click', function() {
+    // HAPUS fungsi loadTeguranDetail dari sini (ini untuk halaman peminjam)
+    // HAPUS event listener DOMContentLoaded yang memuat teguran
+
+    function konfirmasiTolak(peminjamanId) {
+        Swal.fire({
+            title: 'Tolak Peminjaman',
+            input: 'textarea',
+            inputLabel: 'Alasan Penolakan',
+            inputPlaceholder: 'Masukkan alasan penolakan...',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Tolak',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => {
+                if (!value || value.trim() === '') {
+                    return 'Alasan penolakan harus diisi!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mohon tunggu',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                fetch(`/petugas/kelolapeminjaman/${peminjamanId}/tolak`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ alasan: result.value })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Gagal menolak peminjaman',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Terjadi kesalahan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                });
+            }
+        });
+    }
+
+    function konfirmasiPengembalian(peminjamanId) {
+        Swal.fire({
+            title: 'Konfirmasi Pengembalian',
+            text: 'Apakah alat sudah dikembalikan? Peminjaman akan langsung selesai dan stok alat bertambah.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Konfirmasi',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mohon tunggu',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                fetch(`/petugas/kelolapeminjaman/${peminjamanId}/konfirmasi-pengembalian`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Gagal mengkonfirmasi pengembalian',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Terjadi kesalahan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                });
+            }
+        });
+    }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const trigger = document.getElementById('statusTrigger');
+    const dropdown = document.getElementById('statusOptions');
+    const label = document.getElementById('statusLabel');
+    const options = document.querySelectorAll('.option');
+    const hiddenInput = document.getElementById('statusFilter');
+
+    if (trigger && dropdown) {
+        // Toggle dropdown
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Select option
+        options.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const value = this.dataset.value;
+                const text = this.dataset.label;
+                
+                // Update label dan hidden input
+                if (label) label.innerText = text;
+                if (hiddenInput) hiddenInput.value = value;
+                
+                // Tutup dropdown
                 dropdown.classList.add('hidden');
+
+                // Redirect dengan filter
+                let url = new URL(window.location.href);
+                if (value) {
+                    url.searchParams.set('status', value);
+                } else {
+                    url.searchParams.delete('status');
+                }
+                url.searchParams.delete('page');
+                window.location.href = url.toString();
             });
         });
 
-        function resetFilter() {
-            window.location.href = "{{ route('petugas.kelolapeminjaman.index') }}";
-        }
+        // Close dropdown when click outside
+        document.addEventListener('click', function(e) {
+            if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
+});
 
-        // Modal Functions
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
+function resetFilter() {
+    window.location.href = "{{ route('petugas.kelolapeminjaman.index') }}";
+}
+
+    // Modal Functions
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
+    }
 
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             document.body.style.overflow = 'auto';
         }
+    }
 
-        // Detail Modal - PERBAIKAN ROUTE
-        function showDetailModal(peminjamanId) {
-            fetch(`/petugas/kelolapeminjaman/${peminjamanId}/detail`, {
+    // Detail Modal
+    function showDetailModal(peminjamanId) {
+        fetch(`/petugas/kelolapeminjaman/${peminjamanId}/detail`, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const modalContent = createDetailContent(data);
+            document.getElementById('detailContent').innerHTML = modalContent;
+            showModal('detailModal');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Gagal memuat data detail',
+                icon: 'error',
+                confirmButtonColor: '#ef4444'
+            });
+        });
+    }
+
+    function closeDetailModal() {
+        closeModal('detailModal');
+    }
+
+    // Verifikasi Modal
+    function showVerifikasiModal(peminjamanId) {
+        currentPeminjamanId = peminjamanId;
+        loadFotoBukti(peminjamanId);
+        showModal('verifikasiModal');
+    }
+
+    function closeVerifikasiModal() {
+        closeModal('verifikasiModal');
+    }
+
+    // Fungsi untuk reset ke status dipinjam (setelah teguran, untuk foto ulang)
+    function resetKeDipinjam(peminjamanId) {
+        Swal.fire({
+            title: 'Reset ke Dipinjam',
+            text: 'Peminjaman akan dikembalikan ke status Dipinjam agar peminjam dapat melakukan foto ulang. Lanjutkan?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Reset',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mohon tunggu',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                fetch(`/petugas/kelolapeminjaman/${peminjamanId}/verifikasi-mandiri`, {
+                    method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        return response.json().then(err => { throw err; });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    const modalContent = createDetailContent(data);
-                    document.getElementById('detailContent').innerHTML = modalContent;
-                    showModal('detailModal');
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Gagal mereset status',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Gagal memuat data detail');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Terjadi kesalahan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
                 });
-        }
+            }
+        });
+    }
 
-
-        function closeDetailModal() {
-            closeModal('detailModal');
-        }
-
-        // Konfirmasi Modal
-        function showKonfirmasiModal(peminjamanId, action) {
-            currentPeminjamanId = peminjamanId;
-            currentAction = action;
-
-            const modal = document.getElementById('konfirmasiModal');
-            const title = document.getElementById('konfirmasiTitle');
-            const message = document.getElementById('konfirmasiMessage');
-            const actionBtn = document.getElementById('konfirmasiActionBtn');
-
-            if (action === 'setuju') {
-                title.textContent = 'Konfirmasi Persetujuan';
-                message.textContent = 'Apakah Anda yakin ingin menyetujui peminjaman ini?';
-                actionBtn.textContent = 'Setujui';
-                actionBtn.className =
-                    'flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition';
+    // Show Teguran Modal
+    function showTeguranModal(peminjamanId) {
+        currentPeminjamanId = peminjamanId;
+        
+        // Reset form
+        const alasanSelect = document.getElementById('alasanTeguran');
+        const teksTextarea = document.getElementById('teksTeguran');
+        if (alasanSelect) alasanSelect.value = '';
+        if (teksTextarea) teksTextarea.value = '';
+        
+        // Ambil data peminjaman untuk cek jenis
+        fetch(`/petugas/kelolapeminjaman/${peminjamanId}/detail`, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.jenis_pengembalian === 'mandiri') {
+                showModal('teguranModal');
+                
+                // Tampilkan info tambahan
+                const modalTitle = document.querySelector('#teguranModal h3');
+                if (modalTitle) {
+                    modalTitle.innerHTML = 'Beri Teguran <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full ml-2">Pengembalian Mandiri</span>';
+                }
             } else {
-                title.textContent = 'Konfirmasi Penolakan';
-                message.textContent = 'Apakah Anda yakin ingin menolak peminjaman ini?';
-                actionBtn.textContent = 'Tolak';
-                actionBtn.className = 'flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition';
+                Swal.fire({
+                    title: 'Tidak Dapat Memberi Teguran',
+                    text: 'Teguran hanya dapat diberikan untuk pengembalian mandiri',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316'
+                });
             }
-
-            actionBtn.onclick = () => prosesKonfirmasi(action);
-            showModal('konfirmasiModal');
-        }
-
-        function closeKonfirmasiModal() {
-            closeModal('konfirmasiModal');
-        }
-
-        function konfirmasiAksi(peminjamanId, aksi) {
-            if (aksi === 'setujui') {
-                showSetujuiModal(peminjamanId);
-            } else if (aksi === 'tolak') {
-                showTolakModal(peminjamanId);
-            }
-        }
-
-        // Verifikasi Modal
-        function showVerifikasiModal(peminjamanId) {
-            currentPeminjamanId = peminjamanId;
-            loadFotoBukti(peminjamanId);
-            showModal('verifikasiModal');
-        }
-
-        function closeVerifikasiModal() {
-            closeModal('verifikasiModal');
-        }
-
-        // Teguran Modal
-        function showTeguranModal(peminjamanId) {
-            currentPeminjamanId = peminjamanId;
-            document.getElementById('teksTeguran').value = '';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Tetap buka modal jika gagal cek
             showModal('teguranModal');
-        }
+        });
+    }
 
-        function closeTeguranModal() {
-            closeModal('teguranModal');
-        }
+    function closeTeguranModal() {
+        closeModal('teguranModal');
+    }
 
-        // Foto Modal
-        function showFotoModal(fotoUrl) {
-            document.getElementById('fotoModalImage').src = fotoUrl;
+    // Foto Modal
+    function showFotoModal(fotoUrl) {
+        const fotoModalImage = document.getElementById('fotoModalImage');
+        if (fotoModalImage) {
+            fotoModalImage.src = fotoUrl;
             showModal('fotoModal');
         }
+    }
 
-        function closeFotoModal() {
-            closeModal('fotoModal');
-        }
+    function closeFotoModal() {
+        closeModal('fotoModal');
+    }
 
-        // Export Modal
-        function showExportModal() {
-            showModal('exportModal');
-        }
+    // Update teks teguran
+    function updateTeguranText() {
+        const select = document.getElementById('alasanTeguran');
+        const textarea = document.getElementById('teksTeguran');
 
-        function closeExportModal() {
-            closeModal('exportModal');
-        }
+        const teksTeguran = {
+            'foto_tidak_jelas': 'Foto bukti pengembalian tidak jelas - tidak dapat memverifikasi kondisi alat. Silakan lakukan foto ulang dengan pencahayaan yang cukup dan pastikan alat terlihat jelas.',
+            'foto_tidak_sesuai': 'Foto yang diunggah tidak sesuai dengan kondisi alat sebenarnya. Silakan lakukan foto ulang dengan kondisi alat yang sebenarnya.',
+            'alat_rusak': 'Alat dikembalikan dalam kondisi rusak. Mohon segera konfirmasi ke petugas untuk pemeriksaan lebih lanjut.',
+            'terlambat': 'Anda terlambat mengembalikan alat. Mohon perhatikan batas waktu peminjaman untuk peminjaman selanjutnya.',
+            'tidak_lengkap': 'Alat tidak lengkap saat dikembalikan. Silakan lengkapi komponen alat yang kurang.',
+            'lainnya': ''
+        };
 
-        // Update teks teguran berdasarkan pilihan
-        function updateTeguranText() {
-            const select = document.getElementById('alasanTeguran');
-            const textarea = document.getElementById('teksTeguran');
-
-            const teksTeguran = {
-                'foto_tidak_jelas': 'Foto tidak jelas - tidak dapat memverifikasi kondisi alat',
-                'foto_tidak_sesuai': 'Foto tidak sesuai dengan kondisi alat sebenarnya',
-                'alat_rusak': 'Alat dikembalikan dalam kondisi rusak',
-                'terlambat': 'Terlambat mengembalikan alat',
-                'tidak_lengkap': 'Alat tidak lengkap saat dikembalikan',
-                'lainnya': ''
-            };
-
+        if (select && textarea) {
             textarea.value = teksTeguran[select.value] || '';
+            textarea.removeAttribute('readonly');
+            textarea.focus();
+        }
+    }
+
+    // Kirim Teguran
+    function kirimTeguran() {
+        const alasan = document.getElementById('alasanTeguran')?.value;
+        const deskripsi = document.getElementById('teksTeguran')?.value;
+
+        if (!alasan) {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Harap pilih alasan teguran',
+                icon: 'warning',
+                confirmButtonColor: '#f97316'
+            });
+            return;
         }
 
-        // Helper Functions
-        function createDetailContent(data) {
-            let fotoSection = '';
-            if (data.foto_bukti) {
-                fotoSection = `
-                    <div>
-                        <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fas fa-camera text-emerald-500"></i>
-                            Foto Bukti Pengembalian
-                        </h4>
-                        <div class="bg-slate-50 p-4 rounded-xl">
-                            <img src="${data.foto_bukti}" alt="Foto bukti" 
-                                 class="w-full h-48 object-contain rounded-lg mb-2 cursor-pointer"
-                                 onclick="showFotoModal('${data.foto_bukti}')">
-                            <div class="text-sm text-slate-500 text-center">
-                                Foto diupload ${data.waktu_pengembalian ? 'pada ' + data.waktu_pengembalian : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
+        if (!deskripsi || deskripsi.trim() === '') {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Harap isi teks teguran',
+                icon: 'warning',
+                confirmButtonColor: '#f97316'
+            });
+            return;
+        }
 
-            return `
-                <div class="space-y-6">
-                    <!-- Informasi Peminjam -->
-                    <div>
-                        <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fas fa-user text-emerald-500"></i>
-                            Informasi Peminjam
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            ${createInfoCard('Nama', data.user.name)}
-                            ${createInfoCard('Kelas', data.user.kelas)}
-                            ${createInfoCard('Email', data.user.email)}
-                            ${createInfoCard('Telepon', data.user.phone || '-')}
-                        </div>
+        // Konfirmasi
+        Swal.fire({
+            title: 'Kirim Teguran?',
+            html: `
+                <div class="text-left">
+                    <p class="mb-2">Anda akan mengirim teguran dengan teks:</p>
+                    <div class="p-3 bg-orange-50 border border-orange-200 rounded-lg text-orange-800 text-sm">
+                        ${deskripsi}
                     </div>
-
-                    <!-- Informasi Peminjaman -->
-                    <div>
-                        <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fas fa-info-circle text-emerald-500"></i>
-                            Informasi Peminjaman
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            ${createInfoCard('Kode', '#' + data.id)}
-                            ${createInfoCard('Status', data.status.charAt(0).toUpperCase() + data.status.slice(1))}
-                            ${createInfoCard('Tanggal Pengajuan', data.created_at)}
-                            ${createInfoCard('Tanggal Pinjam', data.tanggal_peminjaman)}
-                            ${createInfoCard('Tanggal Kembali', data.tanggal_pengembalian)}
-                            ${createInfoCard('Tanggal Dikembalikan', data.tanggal_dikembalikan || '-')}
-                        </div>
-                    </div>
-
-                    <!-- Alat yang Dipinjam -->
-                    <div>
-                        <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fas fa-tools text-emerald-500"></i>
-                            Alat yang Dipinjam
-                        </h4>
-                        <div class="space-y-3">
-                            ${data.alat.map(alat => `
-                                                            <div class="bg-slate-50 p-4 rounded-xl">
-                                                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                                                                    <div>
-                                                                        <div class="font-medium text-slate-800">${alat.nama}</div>
-                                                                        <div class="text-sm text-slate-500">Kode: ${alat.kode}</div>
-                                                                    </div>
-                                                                    <div class="flex items-center gap-2 mt-2 md:mt-0">
-                                                                        <span class="px-2 py-1 ${alat.kondisi === 'baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-xs">
-                                                                            ${alat.kondisi}
-                                                                        </span>
-                                                                        <span class="text-sm text-slate-500">Stok: ${alat.stok}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="text-sm text-slate-500">Lokasi: ${alat.lokasi}</div>
-                                                            </div>
-                                                        `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- Keterangan -->
-                    <div>
-                        <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fas fa-sticky-note text-emerald-500"></i>
-                            Keterangan
-                        </h4>
-                        <div class="bg-slate-50 p-4 rounded-xl">
-                            <div class="text-slate-800 whitespace-pre-line">${data.keterangan || 'Tidak ada catatan'}</div>
-                        </div>
-                    </div>
-
-                    ${fotoSection}
                 </div>
-            `;
-        }
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Kirim Teguran',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Mengirim Teguran...',
+                    text: 'Mohon tunggu',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('alasan', alasan);
+                formData.append('deskripsi', deskripsi);
 
-        function createInfoCard(label, value) {
-            return `
-                <div class="bg-slate-50 p-4 rounded-xl">
-                    <div class="text-sm text-slate-500 mb-1">${label}</div>
-                    <div class="font-medium text-slate-800">${value}</div>
-                </div>
-            `;
-        }
-
-        function loadFotoBukti(peminjamanId) {
-            const fotoLoading = document.getElementById('fotoLoading');
-            const fotoPreview = document.getElementById('fotoPreview');
-            const noFotoMessage = document.getElementById('noFotoMessage');
-
-            fotoLoading.classList.remove('hidden');
-            fotoPreview.classList.add('hidden');
-            noFotoMessage.classList.add('hidden');
-
-            // Ganti dengan URL langsung
-            fetch(`/petugas/kelolapeminjaman/${peminjamanId}/detail`, {
+                fetch(`/petugas/kelolapeminjaman/${currentPeminjamanId}/tegur`, {
+                    method: 'POST',
+                    body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'Accept': 'application/json'
                     }
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        return response.json().then(err => { throw err; });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    fotoLoading.classList.add('hidden');
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        }).then(() => {
+                            closeModal('teguranModal');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Gagal mengirim teguran',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'Terjadi kesalahan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                });
+            }
+        });
+    }
 
-                    if (data.foto_bukti) {
-                        fotoPreview.innerHTML = `
+    // Helper Functions
+    function createDetailContent(data) {
+        let fotoSection = '';
+        if (data.foto_bukti) {
+            fotoSection = `
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-camera text-emerald-500"></i>
+                        Foto Bukti Pengembalian
+                    </h4>
+                    <div class="bg-slate-50 p-4 rounded-xl">
+                        <img src="${data.foto_bukti}" alt="Foto bukti" 
+                             class="w-full h-48 object-contain rounded-lg mb-2 cursor-pointer"
+                             onclick="showFotoModal('${data.foto_bukti}')">
+                        <div class="text-sm text-slate-500 text-center">
+                            Foto diupload ${data.waktu_pengembalian ? 'pada ' + data.waktu_pengembalian : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="space-y-6">
+                <!-- Informasi Peminjam -->
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-user text-emerald-500"></i>
+                        Informasi Peminjam
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${createInfoCard('Nama', data.user.name)}
+                        ${createInfoCard('Kelas', data.user.kelas)}
+                        ${createInfoCard('Email', data.user.email)}
+                        ${createInfoCard('Telepon', data.user.phone || '-')}
+                    </div>
+                </div>
+
+                <!-- Informasi Peminjaman -->
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-emerald-500"></i>
+                        Informasi Peminjaman
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${createInfoCard('Kode', '#' + data.id)}
+                        ${createInfoCard('Status', data.status?.charAt(0).toUpperCase() + data.status?.slice(1) || '-')}
+                        ${createInfoCard('Tanggal Pengajuan', data.created_at)}
+                        ${createInfoCard('Tanggal Pinjam', data.tanggal_peminjaman)}
+                        ${createInfoCard('Tanggal Kembali', data.tanggal_pengembalian)}
+                        ${createInfoCard('Tanggal Dikembalikan', data.tanggal_dikembalikan || '-')}
+                    </div>
+                </div>
+
+                <!-- Alat yang Dipinjam -->
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-tools text-emerald-500"></i>
+                        Alat yang Dipinjam
+                    </h4>
+                    <div class="space-y-3">
+                        ${data.alat && data.alat.length > 0 ? data.alat.map(alat => `
+                            <div class="bg-slate-50 p-4 rounded-xl">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                                    <div>
+                                        <div class="font-medium text-slate-800">${alat.nama || '-'}</div>
+                                        <div class="text-sm text-slate-500">Kode: ${alat.kode || '-'}</div>
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-2 md:mt-0">
+                                        <span class="px-2 py-1 ${alat.kondisi === 'baik' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-xs">
+                                            ${alat.kondisi || '-'}
+                                        </span>
+                                        <span class="text-sm text-slate-500">Stok: ${alat.stok || 0}</span>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-slate-500">Lokasi: ${alat.lokasi || '-'}</div>
+                            </div>
+                        `).join('') : '<div class="text-slate-500 text-center py-4">Tidak ada data alat</div>'}
+                    </div>
+                </div>
+
+                <!-- Keterangan -->
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-sticky-note text-emerald-500"></i>
+                        Keterangan
+                    </h4>
+                    <div class="bg-slate-50 p-4 rounded-xl">
+                        <div class="text-slate-800 whitespace-pre-line">${data.keterangan || 'Tidak ada catatan'}</div>
+                    </div>
+                </div>
+
+                ${fotoSection}
+            </div>
+        `;
+    }
+
+    function createInfoCard(label, value) {
+        return `
+            <div class="bg-slate-50 p-4 rounded-xl">
+                <div class="text-sm text-slate-500 mb-1">${label}</div>
+                <div class="font-medium text-slate-800">${value || '-'}</div>
+            </div>
+        `;
+    }
+
+    function loadFotoBukti(peminjamanId) {
+        const fotoLoading = document.getElementById('fotoLoading');
+        const fotoPreview = document.getElementById('fotoPreview');
+        const noFotoMessage = document.getElementById('noFotoMessage');
+
+        if (fotoLoading) fotoLoading.classList.remove('hidden');
+        if (fotoPreview) fotoPreview.classList.add('hidden');
+        if (noFotoMessage) noFotoMessage.classList.add('hidden');
+
+        fetch(`/petugas/kelolapeminjaman/${peminjamanId}/detail`, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (fotoLoading) fotoLoading.classList.add('hidden');
+
+            if (data.foto_bukti && fotoPreview) {
+                fotoPreview.innerHTML = `
                     <div class="relative rounded-xl overflow-hidden border-2 border-emerald-200">
                         <img src="${data.foto_bukti}" alt="Foto bukti pengembalian" 
                              class="w-full h-64 object-contain bg-slate-50 cursor-pointer"
@@ -1341,204 +1601,77 @@ function konfirmasiTolak(peminjamanId) {
                         Foto diupload oleh peminjam
                     </div>
                 `;
-                        fotoPreview.classList.remove('hidden');
-                    } else {
-                        noFotoMessage.classList.remove('hidden');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    fotoLoading.classList.add('hidden');
-                    noFotoMessage.classList.remove('hidden');
-                });
-        }
-
-
-        // Ganti fungsi prosesKonfirmasi dengan ini:
-        function prosesKonfirmasi(action) {
-            let formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            formData.append('action', action);
-
-            // Jika tolak, tambahkan alasan
-            if (action === 'tolak') {
-                const alasan = prompt('Masukkan alasan penolakan:');
-                if (!alasan || alasan.trim() === '') {
-                    alert('Alasan penolakan harus diisi');
-                    return;
-                }
-                formData.append('alasan', alasan);
+                fotoPreview.classList.remove('hidden');
+            } else if (noFotoMessage) {
+                noFotoMessage.classList.remove('hidden');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (fotoLoading) fotoLoading.classList.add('hidden');
+            if (noFotoMessage) noFotoMessage.classList.remove('hidden');
+        });
+    }
 
-            // Ganti dengan route name
-            fetch(`/petugas/kelolapeminjaman/${currentPeminjamanId}/konfirmasi`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: data.message,
-                            icon: 'success',
-                            confirmButtonColor: '#10b981',
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: data.message,
-                            icon: 'error',
-                            confirmButtonColor: '#ef4444'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan. Silakan coba lagi.',
-                        icon: 'error',
-                        confirmButtonColor: '#ef4444'
-                    });
-                });
-
-            closeKonfirmasiModal();
-        }
-
-        function konfirmasiVerifikasi() {
-            const kondisi = document.querySelector('input[name="kondisi"]:checked').value;
-            const catatan = document.getElementById('verifikasiCatatan').value;
-
-            const formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            formData.append('kondisi', kondisi);
-            formData.append('catatan', catatan);
-
-            // Ganti dengan URL langsung
-            fetch(`/petugas/kelolapeminjaman/${currentPeminjamanId}/verifikasi`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Gagal memverifikasi');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan');
-                });
-
-            closeVerifikasiModal();
-        }
-
-        function konfirmasiLangsungKembali(peminjamanId) {
-            if (confirm('Konfirmasi pengembalian langsung? Peminjaman akan diselesaikan.')) {
-                // Ganti dengan URL langsung
-                fetch(`/petugas/kelolapeminjaman/${peminjamanId}/langsung-kembali`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Gagal mengkonfirmasi pengembalian');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan');
-                    });
-            }
-        }
-
-        function kirimTeguran() {
-            const alasan = document.getElementById('alasanTeguran').value;
-            const deskripsi = document.getElementById('teksTeguran').value;
-
-            if (!alasan || !deskripsi) {
-                alert('Harap pilih alasan dan isi teks teguran');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            formData.append('alasan', alasan);
-            formData.append('deskripsi', deskripsi);
-
-            // Ganti dengan URL langsung
-            fetch(`/petugas/kelolapeminjaman/${currentPeminjamanId}/tegur`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Gagal mengirim teguran');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan');
-                });
-
-            closeTeguranModal();
-        }
-
-        // Export Form - Ini yang masih bisa pakai route()
-        document.getElementById('exportForm').addEventListener('submit', function(e) {
+    // Export Form
+    const exportForm = document.getElementById('exportForm');
+    if (exportForm) {
+        exportForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
 
-            // Ini bisa pakai route() karena tidak perlu parameter
             fetch('{{ route('petugas.kelolapeminjaman.export') }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`Berhasil mengekspor ${data.count} data`);
-                        closeExportModal();
-                        // Download file bisa ditambahkan disini
-                    } else {
-                        alert('Gagal mengekspor data');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan');
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `Berhasil mengekspor ${data.count} data`,
+                        icon: 'success',
+                        confirmButtonColor: '#10b981'
+                    });
+                    closeExportModal();
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Gagal mengekspor data',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan',
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444'
                 });
+            });
         });
-        // Close modal dengan ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeDetailModal();
-                closeKonfirmasiModal();
-                closeVerifikasiModal();
-                closeTeguranModal();
-                closeFotoModal();
-                closeExportModal();
-            }
-        });
-    </script>
+    }
+
+    // Close modal dengan ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDetailModal();
+            closeKonfirmasiModal();
+            closeVerifikasiModal();
+            closeTeguranModal();
+            closeFotoModal();
+            closeExportModal();
+        }
+    });
+</script>
 
     <style>
         .animate-slide-in {

@@ -22,23 +22,15 @@
             </div>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                <!-- Button Unduh -->
-                <a href=""
-                    class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600
-              text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
-              w-full sm:w-auto">
-                    <i class="fa-solid fa-download"></i>
-                    <span class="text-sm sm:text-base">Unduh</span>
-                </a>
 
-                <!-- Button Import -->
+                {{-- <!-- Button Import -->
                 <a href=""
                     class="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600
               text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
               w-full sm:w-auto">
                     <i class="fa-solid fa-upload"></i>
                     <span class="text-sm sm:text-base">Import</span>
-                </a>
+                </a> --}}
 
                 <!-- Button Tambah Petugas -->
                 <a href="{{ route('admin.datapetugas.create') }}"
