@@ -10,19 +10,14 @@ class PeminjamSeeder extends Seeder
 {
     public function run(): void
     {
-        for ($i = 1; $i <= 10; $i++) {
-
-            User::updateOrCreate(
-                ['email' => 'peminjam'.$i.'@pinjam.id'],
-                [
-                    'name' => 'Peminjam '.$i,
-                    'username' => 'peminjam'.$i,
-                    'password' => Hash::make('12345678'),
-                    'role' => 'peminjam',
-                    'is_blocked' => false,
-                ]
-            );
-
-        }
+        User::updateOrCreate(
+            ['email' => 'peminjam@pinjam.id'],
+            [
+                'name' => 'Peminjam',
+                'username' => 'peminjam',
+                'password' => Hash::make('12345678'),
+                'role' => 'peminjam',
+            ]
+        );
     }
 }

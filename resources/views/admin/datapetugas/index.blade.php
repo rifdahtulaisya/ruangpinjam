@@ -114,9 +114,7 @@
                                         <p class="font-semibold text-slate-700">
                                             {{ $user->name }}
                                         </p>
-                                        <p class="text-xs text-slate-400">
-                                            ID: {{ $user->id }}
-                                        </p>
+                                 
                                     </div>
                                 </div>
                             </td>

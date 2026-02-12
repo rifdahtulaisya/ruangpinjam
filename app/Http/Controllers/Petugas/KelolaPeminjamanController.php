@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Peminjaman;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
+
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class KelolaPeminjamanController extends Controller
@@ -76,39 +78,57 @@ class KelolaPeminjamanController extends Controller
     }
 
     public function konfirmasiPengembalian($id)
-    {
-        try {
-            $peminjaman = Peminjaman::findOrFail($id);
-            
-            if (!in_array($peminjaman->status, ['dipinjam', 'menunggu_verifikasi'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Peminjaman tidak dalam status yang dapat dikonfirmasi'
-                ], 400);
-            }
-            
-            $peminjaman->status = 'selesai';
-            $peminjaman->save();
-            
-            LogAktivitas::create([
-                'user_id' => Auth::id(),
-                'role' => Auth::user()->role,
-                'aktivitas' => 'Mengkonfirmasi pengembalian peminjaman #' . $id,
-                'modul' => 'pengembalian'
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Pengembalian berhasil dikonfirmasi.'
-            ]);
-            
-        } catch (\Exception $e) {
+{
+    try {
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        if (!in_array($peminjaman->status, ['dipinjam', 'menunggu_verifikasi', 'ditegur'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Peminjaman tidak dalam status yang dapat dikonfirmasi'
+            ], 400);
         }
+        
+        $user = $peminjaman->user;
+        
+        $peminjaman->status = 'selesai';
+        $peminjaman->save();
+        
+        // ✅ CEK DAN UNBLOCK OTOMATIS JIKA SEMUA PEMINJAMAN TELAT SUDAH SELESAI
+        if ($user && $user->is_blocked) {
+            $masihTelat = Peminjaman::where('user_id', $user->id)
+                ->where('status', 'dipinjam')
+                ->whereDate('tanggal_pengembalian', '<', Carbon::today())
+                ->exists();
+            
+            if (!$masihTelat) {
+                $user->unblock("Akun dipulihkan otomatis - Semua peminjaman telat telah dikonfirmasi oleh petugas");
+                
+                // HAPUS baris ini karena $this->command hanya tersedia di Console
+                // $this->command?->info("✅ User {$user->name} otomatis di-unblock!");
+            }
+        }
+        
+        LogAktivitas::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role,
+            'aktivitas' => 'Mengkonfirmasi pengembalian peminjaman #' . $id,
+            'modul' => 'pengembalian'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengembalian berhasil dikonfirmasi.' . 
+                        ($user->is_blocked ? ' Status blokir akun akan diperiksa.' : '')
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     public function setujuiPeminjaman($id)
     {

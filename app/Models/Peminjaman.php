@@ -22,9 +22,9 @@ class Peminjaman extends Model
         'keterangan',
         'foto_bukti',
         'waktu_pengembalian',
-        'jenis_pengembalian', // TAMBAHKAN: 'manual' atau 'mandiri'
-        'teguran_dikirim_at', // TAMBAHKAN: waktu teguran dikirim
-        'petugas_id_teguran', // TAMBAHKAN: id petugas yang memberi teguran
+        'jenis_pengembalian',
+        'teguran_dikirim_at',
+        'petugas_id_teguran',
     ];
 
     protected $casts = [
@@ -36,75 +36,113 @@ class Peminjaman extends Model
         'teguran_dikirim_at' => 'datetime',
     ];
 
-    // PERUBAHAN: Hanya 4 status utama + ditegur
     public static $statuses = [
-        'menunggu_peminjaman',  // Menunggu persetujuan
-        'dipinjam',             // Disetujui, sedang dipinjam
-        'selesai',              // Sudah dikembalikan dan selesai
-        'ditolak',              // Ditolak
-        'ditegur',              // Ditegur
-        'menunggu_verifikasi'   // TAMBAHKAN: Menunggu verifikasi foto pengembalian mandiri
+        'menunggu_peminjaman',
+        'dipinjam',
+        'selesai',
+        'ditolak',
+        'ditegur',
+        'menunggu_verifikasi'
     ];
 
-    // Setter untuk status dengan auto update stok
     public function setStatusAttribute($value)
     {
         $oldStatus = $this->attributes['status'] ?? null;
         
         if (!in_array($value, self::$statuses)) {
-            throw new \InvalidArgumentException("Status tidak valid. Status yang diperbolehkan: " . implode(', ', self::$statuses));
+            throw new \InvalidArgumentException("Status tidak valid.");
         }
         
         $this->attributes['status'] = $value;
         
-        // Otomatis update stok saat status berubah
         if ($oldStatus !== $value) {
             $this->updateStokAlat($oldStatus, $value);
+            
+            // CEK APAKAH STATUS BERUBAH KE SELESAI
+            if ($value === 'selesai') {
+                $this->handlePengembalianSelesai();
+            }
         }
     }
 
-    // PERUBAHAN SEDERHANA: Logika stok
+   
+
+    // App\Models\Peminjaman.php
+
+protected function handlePengembalianSelesai()
+{
+    if (!$this->tanggal_dikembalikan || !$this->tanggal_pengembalian) {
+        return;
+    }
+    
+    $jatuhTempo = \Carbon\Carbon::parse($this->tanggal_pengembalian);
+    $dikembalikan = \Carbon\Carbon::parse($this->tanggal_dikembalikan);
+    
+    // ✅ CEK APAKAH INI PEMINJAMAN YANG TELAT
+    if ($dikembalikan->greaterThan($jatuhTempo)) {
+        $hariTelat = $jatuhTempo->diffInDays($dikembalikan);
+        
+        // CATAT KETERANGAN TELAT
+        $this->keterangan = ($this->keterangan ? $this->keterangan . ' | ' : '') 
+            . "DIKEMBALIKAN TELAT {$hariTelat} HARI";
+        $this->saveQuietly();
+    }
+    
+    // ✅ CEK APAKAH USER DIBLOKIR
+    $user = $this->user;
+    if ($user && $user->is_blocked) {
+        // CEK APAKAH MASIH ADA PEMINJAMAN TELAT LAINNYA YANG STATUSNYA DIPINJAM
+        $masihAdaPeminjamanTelat = Peminjaman::where('user_id', $user->id)
+            ->where('status', 'dipinjam')
+            ->whereDate('tanggal_pengembalian', '<', \Carbon\Carbon::today())
+            ->exists();
+        
+        // JIKA SUDAH TIDAK ADA PEMINJAMAN TELAT, UNBLOCK USER
+        if (!$masihAdaPeminjamanTelat) {
+            $user->unblock("Akun dipulihkan otomatis - Semua peminjaman telat telah dikembalikan dan dikonfirmasi");
+            
+            // Log pemulihan
+            \App\Models\LogAktivitas::create([
+                'user_id' => $user->id,
+                'role' => $user->role,
+                'aktivitas' => 'Akun dipulihkan otomatis - Semua peminjaman telat telah dikonfirmasi',
+                'modul' => 'peminjaman',
+                'data' => json_encode([
+                    'peminjaman_id' => $this->id,
+                    'hari_telat' => $hariTelat ?? 0,
+                    'dikonfirmasi_at' => now()->toDateTimeString()
+                ])
+            ]);
+        }
+    }
+}
+
     protected function updateStokAlat($oldStatus, $newStatus)
     {
         if (!$this->alat_ids || !is_array($this->alat_ids)) {
             return;
         }
 
-        // 1. Jika status berubah ke 'dipinjam' (disetujui oleh petugas)
         if ($newStatus === 'dipinjam') {
-            // Kurangi stok saat alat DISETUJUI untuk dipinjam
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->decrement('stok');
             }
         }
-        
-        // 2. Jika status berubah ke 'selesai' (petugas konfirmasi pengembalian)
         elseif ($newStatus === 'selesai') {
-            // Tambah stok kembali saat peminjaman SELESAI
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->increment('stok');
             }
-            
-            // Set tanggal dikembalikan
             $this->attributes['tanggal_dikembalikan'] = now();
             $this->attributes['waktu_pengembalian'] = now();
         }
-        
-        // 3. Jika status DITOLAK dari 'menunggu_peminjaman'
-        elseif ($oldStatus === 'menunggu_peminjaman' && $newStatus === 'ditolak') {
-            // Tidak ada perubahan stok
-        }
-        
-        // 4. Jika status dibatalkan dari 'dipinjam' ke status lain (kecuali 'selesai')
         elseif ($oldStatus === 'dipinjam' && $newStatus !== 'selesai' && $newStatus !== 'menunggu_verifikasi') {
-            // Kembalikan stok karena dibatalkan setelah dipinjam
             foreach ($this->alat_ids as $alatId) {
                 Alat::where('id', $alatId)->increment('stok');
             }
         }
     }
 
-    // Relasi dan method lainnya
+    // Relasi dan method lainnya...
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -115,41 +153,52 @@ class Peminjaman extends Model
         return $this->belongsTo(User::class, 'petugas_id_teguran');
     }
 
+    /**
+     * CEK APAKAH PEMINJAMAN INI TELAT
+     */
+    public function isTelat()
+    {
+        if ($this->status === 'selesai' && $this->tanggal_dikembalikan) {
+            return \Carbon\Carbon::parse($this->tanggal_dikembalikan)
+                ->greaterThan(\Carbon\Carbon::parse($this->tanggal_pengembalian));
+        }
+        return false;
+    }
+
+    /**
+     * HITUNG HARI TELAT
+     */
+    public function getHariTelat()
+    {
+        if (!$this->isTelat()) {
+            return 0;
+        }
+        
+        $jatuhTempo = \Carbon\Carbon::parse($this->tanggal_pengembalian);
+        $dikembalikan = \Carbon\Carbon::parse($this->tanggal_dikembalikan);
+        
+        return $jatuhTempo->diffInDays($dikembalikan);
+    }
+    
+    // Method lainnya...
     public function getAlatListAttribute()
     {
         if (!$this->alat_ids || !is_array($this->alat_ids)) {
             return collect();
         }
-
         return Alat::whereIn('id', $this->alat_ids)->get();
     }
-
-    public function getFotoBuktiUrlAttribute()
-    {
-        if ($this->foto_bukti) {
-            return asset('storage/' . $this->foto_bukti);
-        }
-        return null;
-    }
-
-    public function isMenungguPeminjaman()
-    {
-        return $this->status === 'menunggu_peminjaman';
-    }
     
-    // Method untuk cek apakah dari pengembalian mandiri
     public function isPengembalianMandiri()
     {
         return $this->jenis_pengembalian === 'mandiri';
     }
     
-    // Method untuk cek apakah ada teguran
     public function hasTeguran()
     {
         return $this->status === 'ditegur' && $this->keterangan && strpos($this->keterangan, 'TEGURAN:') === 0;
     }
     
-    // Method untuk get teks teguran
     public function getTeksTeguran()
     {
         if ($this->hasTeguran()) {
@@ -157,4 +206,14 @@ class Peminjaman extends Model
         }
         return null;
     }
+
+    // Save tanpa trigger event
+    public function saveQuietly(array $options = [])
+    {
+        return static::withoutEvents(function () use ($options) {
+            return $this->save($options);
+        });
+    }
+
+    
 }

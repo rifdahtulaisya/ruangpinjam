@@ -248,7 +248,7 @@
                                                 {{ $peminjaman->user->name ?? 'Tidak diketahui' }}</div>
                                             <div class="text-xs text-slate-500">{{ $peminjaman->user->email ?? '-' }}</div>
                                             <div class="text-xs text-slate-500">Kelas:
-                                                {{ $peminjaman->user->kelas ?? '-' }}</div>
+                                                {{ $peminjaman->user->kelas_jurusan ?? '-' }}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -437,7 +437,7 @@
                                     <div>
                                         <div class="font-bold text-slate-800">
                                             {{ $peminjaman->user->name ?? 'Tidak diketahui' }}</div>
-                                        <div class="text-xs text-slate-500">{{ $peminjaman->user->kelas ?? '-' }}</div>
+                                        <div class="text-xs text-slate-500">{{ $peminjaman->user->kelas_jurusan ?? '-' }}</div>
                                     </div>
                                 </div>
                                 @php

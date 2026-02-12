@@ -85,9 +85,9 @@
             <div class="flex items-center gap-3">
                 <!-- Avatar dengan badge role -->
                 <div class="relative">
-                    <img src="https://i.pravatar.cc/40?u={{ Auth::id() }}" 
+                    <img src="{{ asset('assets-admin/img/2.svg') }}" 
                          class="w-12 h-12 rounded-full object-cover border-2 border-emerald-400 group-hover:border-emerald-500 transition-all"
-                         onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Petugas') }}&background=10b981&color=fff'">
+                         alt="User Avatar">
                     <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
                 </div>
                 

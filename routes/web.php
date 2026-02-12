@@ -115,6 +115,8 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
     Route::post('profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
+
+    
 });
 
 Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
