@@ -113,9 +113,6 @@ class UserImportController extends Controller
                 }
             }
 
-            // Simpan log import (opsional)
-            // UserImport::create([...]);
-
             $message = "Import selesai! Berhasil: {$successCount}, Gagal: {$failedCount}";
 
             if ($failedCount > 0) {
@@ -127,7 +124,6 @@ class UserImportController extends Controller
             return redirect()
                 ->route('admin.datapeminjam.index')
                 ->with('success', $message);
-
         } catch (\Exception $e) {
             return back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
@@ -169,7 +165,7 @@ class UserImportController extends Controller
         $sheet->setCellValue('E3', 'active');
 
         // Auto size columns
-        foreach(range('A','E') as $col) {
+        foreach (range('A', 'E') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -181,13 +177,13 @@ class UserImportController extends Controller
         $sheet->getStyle('A5:A8')->getFont()->setItalic(true)->setSize(9);
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-        
+
         $filename = 'template_import_peminjam_' . date('Y-m-d') . '.xlsx';
-        
+
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
-        
+
         $writer->save('php://output');
         exit;
     }

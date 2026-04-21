@@ -10,7 +10,10 @@ return new class extends Migration
     {
         Schema::create('alat', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategori_id')->constrained('kategoris')->onDelete('cascade');
+            $table->foreignId('kategori_id')
+              ->nullable() 
+              ->constrained('kategoris')
+              ->onDelete('set null');
             $table->string('nama_alat', 100);
             $table->enum('kondisi', ['baik', 'rusak_ringan', 'rusak_berat', 'perlu_perbaikan'])->default('baik');
             $table->integer('stok')->default(0);

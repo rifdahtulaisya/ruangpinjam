@@ -55,15 +55,6 @@
                 Manajemen Data
             </p>
             
-            <a href="{{ route('admin.dataalat.index') }}"
-               class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
-                      {{ Route::is('admin.dataalat.*') 
-                         ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
-                         : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
-                <i class="fa-solid fa-toolbox w-5 text-center"></i>
-                Data Alat
-            </a>
-
             <a href="{{ route('admin.datakategori.index') }}"
                class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
                       {{ Route::is('admin.datakategori.*') 
@@ -73,6 +64,14 @@
                 Data Kategori
             </a>
 
+            <a href="{{ route('admin.dataalat.index') }}"
+               class="flex items-center gap-4 px-5 py-3 rounded-xl transition ml-3
+                      {{ Route::is('admin.dataalat.*') 
+                         ? 'bg-indigo-100 text-indigo-600 font-semibold shadow-sm' 
+                         : 'text-slate-600 hover:bg-indigo-100/70 hover:text-indigo-600' }}">
+                <i class="fa-solid fa-toolbox w-5 text-center"></i>
+                Data Alat
+            </a>
             
         </div>
         

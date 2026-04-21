@@ -23,21 +23,6 @@
     <!-- MAIN DETAIL SECTION -->
     <div class="bg-white rounded-xl shadow p-6 flex-1">
         <div class="grid gap-6">
-            <!-- HEADER DETAIL -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <i class="fa-solid fa-tag text-xl text-indigo-600"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-800">{{ $datakategori->nama_kategori }}</h2>
-                        <p class="text-sm text-slate-500">ID Kategori: #{{ $datakategori->id }}</p>
-                    </div>
-                </div>
-                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                    Aktif
-                </span>
-            </div>
             
             <!-- DETAIL INFORMATION -->
             <div class="grid md:grid-cols-2 gap-6">
@@ -52,12 +37,6 @@
                             <div class="flex justify-between items-center py-2 border-b border-slate-200">
                                 <span class="text-sm text-slate-600">Nama Kategori</span>
                                 <span class="text-sm font-medium text-slate-800">{{ $datakategori->nama_kategori }}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-slate-200">
-                                <span class="text-sm text-slate-600">Slug</span>
-                                <span class="text-sm font-medium text-slate-800">
-                                    {{ Str::slug($datakategori->nama_kategori) }}
-                                </span>
                             </div>
                             <div class="flex justify-between items-center py-2">
                                 <span class="text-sm text-slate-600">Status</span>
@@ -80,19 +59,13 @@
                             <div class="flex justify-between items-center py-2 border-b border-slate-200">
                                 <span class="text-sm text-slate-600">Dibuat Pada</span>
                                 <span class="text-sm font-medium text-slate-800">
-                                    {{ $datakategori->created_at ? $datakategori->created_at->format('d F Y H:i') : '-' }}
+                                    {{ $datakategori->created_at ? $datakategori->created_at->format('d F Y') : '-' }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-slate-200">
                                 <span class="text-sm text-slate-600">Diperbarui</span>
                                 <span class="text-sm font-medium text-slate-800">
-                                    {{ $datakategori->updated_at ? $datakategori->updated_at->format('d F Y H:i') : '-' }}
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center py-2">
-                                <span class="text-sm text-slate-600">Umur Kategori</span>
-                                <span class="text-sm font-medium text-slate-800">
-                                    {{ $datakategori->created_at ? $datakategori->created_at->diffForHumans() : '-' }}
+                                    {{ $datakategori->updated_at ? $datakategori->updated_at->format('d F Y') : '-' }}
                                 </span>
                             </div>
                         </div>
@@ -102,32 +75,6 @@
 
             
         </div>
-    </div>
-
-    <!-- SIDEBAR INFO SECTION -->
-    <div class="hidden lg:flex w-full lg:w-1/3 xl:w-1/4 flex-col gap-6">
-        <!-- Category Info Card -->
-        <div class="bg-white rounded-xl shadow p-6">
-            <div class="flex flex-col items-center text-center">
-                <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full 
-                            flex items-center justify-center mb-4">
-                    <i class="fa-solid fa-tags text-4xl text-blue-500"></i>
-                </div>
-                <h3 class="font-semibold text-slate-800">{{ $datakategori->nama_kategori }}</h3>
-                <p class="text-xs text-slate-500 mt-1">Kategori Produk</p>
-            </div>
-            
-            <div class="mt-6 pt-6 border-t border-slate-200">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm text-slate-600">Total Penggunaan</span>
-                    <span class="text-sm font-semibold text-slate-800">0 Items</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2">
-                    <div class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-        
     </div>
 </div>
 

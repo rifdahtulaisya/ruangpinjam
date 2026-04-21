@@ -22,8 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', where: function (Blueprint $table) {
-            $table->dropColumn(['jurusan', 'kelas']);
-        });
+        Schema::table('users', function (Blueprint $table) {
+        // Pastikan cara hapus kolomnya seperti ini:
+        $table->dropColumn(['jurusan', 'kelas']);
+    });
     }
 };

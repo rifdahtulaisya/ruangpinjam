@@ -23,14 +23,14 @@
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             
-            {{-- <!-- Button Import  -->
-            <button onclick=""
+             <!-- Button Import -->
+            <a href="{{ route('admin.dataalat.import') }}"
                 class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600
                 text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
                 w-full sm:w-auto order-1 sm:order-1">
                 <i class="fa-solid fa-file-import"></i>
                 <span class="text-sm sm:text-base">Import Alat</span>
-            </button> --}}
+            </a>
 
             <!-- Button Tambah  -->
             <a href="{{ route('admin.dataalat.create') }}"
@@ -107,8 +107,15 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 flex-shrink-0">
-                                        <img src="{{ $item->foto_url }}" alt="{{ $item->nama_alat }}"
-                                            class="w-full h-full object-cover rounded-lg border border-slate-200">
+                                        @if($item->foto)
+                                            <img src="{{ asset('storage/' . $item->foto) }}" 
+                                                alt="{{ $item->nama_alat }}"
+                                                class="w-12 h-12 object-cover rounded-lg">
+                                        @else
+                                            <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                                                <i class="fa-solid fa-camera text-slate-400"></i>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>

@@ -23,14 +23,24 @@
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
 
-                {{-- <!-- Button Import -->
-                <a href=""
+                 <!-- Button Import -->
+                <a href="{{ route('admin.datapetugas.import') }}"
                     class="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600
-              text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
-              w-full sm:w-auto">
+                    text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
+                    w-full sm:w-auto">
                     <i class="fa-solid fa-upload"></i>
                     <span class="text-sm sm:text-base">Import</span>
-                </a> --}}
+                </a>
+
+                <!-- Button Export -->
+                <a href="{{ route('admin.datapetugas.export') }}?include_password=1"
+                    class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600
+                    text-white px-4 sm:px-5 py-2.5 rounded-xl shadow transition
+                    w-full sm:w-auto"
+                    onclick="return confirmExport()">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="text-sm sm:text-base">Export</span>
+                </a>
 
                 <!-- Button Tambah Petugas -->
                 <a href="{{ route('admin.datapetugas.create') }}"
@@ -152,21 +162,6 @@
 
                             <td class="px-6 py-4">
                                 <div class="flex justify-center gap-2">
-                                    <!-- View Button -->
-                                    <a href="{{ route('admin.datapetugas.show', $user->id) }}"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg 
-                  bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all duration-200"
-                                        title="Lihat Detail">
-                                        <i class="fa fa-eye text-sm"></i>
-                                    </a>
-
-                                    <!-- Edit Button -->
-                                    <a href="{{ route('admin.datapetugas.edit', $user->id) }}"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg 
-                  bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-all duration-200"
-                                        title="Edit">
-                                        <i class="fa fa-edit text-sm"></i>
-                                    </a>
 
                                     <!-- Delete Button -->
                                     <form action="{{ route('admin.datapetugas.destroy', $user->id) }}" method="POST"

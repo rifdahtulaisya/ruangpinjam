@@ -131,35 +131,15 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <!-- Lokasi -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-slate-600 mb-1">
-                        Lokasi Penyimpanan
-                    </label>
-                    <input type="text" name="lokasi" value="{{ old('lokasi') }}"
-                           class="w-full px-4 py-2.5 border border-slate-300 rounded-lg
-                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Contoh: Rak A1, Gudang Utara">
-                    @error('lokasi')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
             </div>
 
             <!-- BUTTONS -->
             <div class="flex justify-end gap-3 pt-6 mt-6 border-t border-slate-200">
-                <a href="{{ route('admin.dataalat.index') }}"
-                   class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300
-                          transition flex items-center gap-2">
-                    <i class="fa-solid fa-times"></i>
-                    Batal
-                </a>
                 <button type="submit"
                         class="px-5 py-2.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600
                                transition flex items-center gap-2">
                     <i class="fa-solid fa-save"></i>
-                    Simpan Alat
+                    Simpan
                 </button>
             </div>
         </form>

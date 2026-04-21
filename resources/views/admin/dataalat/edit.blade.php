@@ -43,7 +43,7 @@
                     <!-- Foto Alat -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-600 mb-1">
-                            Foto Alat <span class="text-gray-400">(Opsional)</span>
+                            Foto Alat
                         </label>
                         <div class="flex items-center gap-6">
                             <!-- Current Foto Preview -->
@@ -102,13 +102,11 @@
                                         <div class="text-sm text-blue-700">
                                             <p class="font-medium">Informasi:</p>
                                             <ul class="mt-1 space-y-1">
-                                                <li>• Foto bersifat opsional</li>
-                                                <li>• Format: JPG, PNG, GIF</li>
+                                                <li>• Format: JPG, PNG</li>
                                                 <li>• Maksimal ukuran: 2MB</li>
-                                                @if ($dataalat->has_foto)
-                                                    <li>• Foto saat ini: <span
-                                                            class="font-mono text-xs">{{ $dataalat->nama_foto }}</span></li>
-                                                @endif
+                                                <li id="fileSizeInfo" class="text-blue-800 hidden">
+                                                    • Ukuran file: -
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -200,42 +198,20 @@
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-
-                    <!-- Lokasi -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-slate-600 mb-1">
-                            Lokasi Penyimpanan
-                        </label>
-                        <input type="text" name="lokasi" value="{{ old('lokasi', $dataalat->lokasi) }}"
-                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg
-                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Contoh: Rak A1, Gudang Utara">
-                        @error('lokasi')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-
                 </div>
 
                 <!-- BUTTONS -->
-                <div class="flex justify-between gap-3 pt-6 mt-6 border-t border-slate-200">
+                <div class="flex justify-end gap-3 pt-6 mt-6 border-t border-slate-200">
                     <!-- Delete Button -->
 
 
                     <!-- Cancel & Save Buttons -->
                     <div class="flex gap-3">
-                        <a href="{{ route('admin.dataalat.index') }}"
-                            class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300
-                              transition flex items-center gap-2">
-                            <i class="fa-solid fa-times"></i>
-                            Batal
-                        </a>
                         <button type="submit"
                             class="px-5 py-2.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600
                                    transition flex items-center gap-2">
                             <i class="fa-solid fa-save"></i>
-                            Simpan Perubahan
+                            Simpan
                         </button>
                     </div>
                 </div>
@@ -262,76 +238,55 @@
 
 @section('scripts')
     <script>
-        // Handle file selection
         function handleFileSelect(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const reader = new FileReader();
+            if (!input.files || !input.files[0]) return;
 
-                // Validasi ukuran file (2MB = 2 * 1024 * 1024 bytes)
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
-                    input.value = '';
-                    return;
-                }
+            const file = input.files[0]; // 🔥 INI YANG KURANG
 
-                // Validasi tipe file
-                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Format file tidak didukung. Harus JPG, PNG, atau GIF.');
-                    input.value = '';
-                    return;
-                }
+            // 🔥 HITUNG SIZE
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
-                reader.onload = function(e) {
-                    // Update preview
-                    const previewContainer = document.querySelector('.w-32.h-32');
+            const fileSizeInfo = document.getElementById('fileSizeInfo');
+            fileSizeInfo.textContent = '• Ukuran file: ' + fileSizeMB + ' MB';
+            fileSizeInfo.classList.remove('hidden');
 
-                    // Hapus preview lama jika ada
-                    const oldPreview = document.getElementById('fotoPreview');
-                    const noFotoPreview = document.getElementById('noFotoPreview');
-
-                    if (oldPreview) {
-                        oldPreview.src = e.target.result;
-                    } else if (noFotoPreview) {
-                        // Hapus "no foto" preview
-                        noFotoPreview.remove();
-
-                        // Buat elemen img baru
-                        const img = document.createElement('img');
-                        img.id = 'fotoPreview';
-                        img.src = e.target.result;
-                        img.alt = 'Preview';
-                        img.className = 'w-full h-full object-cover';
-                        previewContainer.appendChild(img);
-                    } else {
-                        // Buat elemen img baru
-                        const img = document.createElement('img');
-                        img.id = 'fotoPreview';
-                        img.src = e.target.result;
-                        img.alt = 'Preview';
-                        img.className = 'w-full h-full object-cover';
-                        previewContainer.innerHTML = '';
-                        previewContainer.appendChild(img);
-                    }
-
-                    // Update tombol upload text
-                    document.getElementById('uploadBtnText').textContent = 'Ganti Foto';
-
-                    // Tampilkan tombol hapus jika belum ada
-                    if (!document.querySelector('[onclick="confirmRemoveFoto()"]')) {
-                        showRemoveButton();
-                    }
-
-                    // Uncheck hapus_foto jika ada
-                    const hapusFotoCheckbox = document.getElementById('hapus_foto');
-                    if (hapusFotoCheckbox) {
-                        hapusFotoCheckbox.checked = false;
-                    }
-                }
-
-                reader.readAsDataURL(file);
+            // Validasi ukuran
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                input.value = '';
+                fileSizeInfo.classList.add('hidden'); // 🔥 sembunyikan lagi
+                return;
             }
+
+            // Validasi tipe
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                alert('Format file harus JPG, PNG, atau GIF.');
+                input.value = '';
+                fileSizeInfo.classList.add('hidden'); // 🔥 sembunyikan lagi
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const previewContainer = document.getElementById('previewContainer');
+
+                previewContainer.innerHTML = '';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-full object-cover';
+
+                previewContainer.appendChild(img);
+
+                document.getElementById('uploadBtnText').textContent = 'Ganti Foto';
+
+                const hapusFoto = document.getElementById('hapus_foto');
+                if (hapusFoto) hapusFoto.checked = false;
+            };
+
+            reader.readAsDataURL(file);
         }
 
         // Show remove button

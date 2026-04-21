@@ -25,6 +25,26 @@ class KategoriController extends Controller
         return view('admin.datakategori.create');
     }
 
+    public function storeMany(Request $request)
+    {
+        $request->validate([
+            'nama_kategori'   => 'required|array|min:1',
+            'nama_kategori.*' => 'required|string|max:255|distinct',
+        ], [
+            'nama_kategori.required'   => 'Minimal isi 1 kategori.',
+            'nama_kategori.*.required' => 'Nama kategori tidak boleh kosong.',
+            'nama_kategori.*.distinct' => 'Ada nama kategori yang duplikat.',
+        ]);
+
+        foreach ($request->nama_kategori as $nama) {
+            Kategori::create(['nama_kategori' => $nama]);
+        }
+
+        return redirect()
+            ->route('admin.datakategori.index')
+            ->with('success', count($request->nama_kategori) . ' kategori berhasil dibuat.');
+    }
+
     /**
      * Store a newly created resource in storage.
      */

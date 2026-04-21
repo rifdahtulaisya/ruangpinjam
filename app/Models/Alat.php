@@ -18,8 +18,7 @@ class Alat extends Model
         'nama_alat',
         'foto',
         'kondisi',
-        'stok',
-        'lokasi'
+        'stok'
     ];
 
     protected $casts = [
@@ -32,6 +31,7 @@ class Alat extends Model
         return $this->belongsTo(Kategori::class, 'kategori_id');
     }
 
+    
     // Accessor untuk foto URL
     public function getFotoUrlAttribute()
     {

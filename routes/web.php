@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DataPerkelasController;
 use App\Http\Controllers\Admin\DataPetugasController;
 use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\LogAktivitasController;
+use App\Http\Controllers\Admin\ImportAlatController;
 use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Peminjam\DaftarAlatController;
 use App\Http\Controllers\Peminjam\PeminjamanController;
@@ -13,7 +14,6 @@ use App\Http\Controllers\Petugas\KelolaPeminjamanController;
 use App\Http\Controllers\Peminjam\ProfilePController;
 use App\Http\Controllers\Petugas\LaporanController;
 use App\Http\Controllers\Petugas\ProfileController;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,21 +26,45 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         return view('admin.dashboard');
     })->name('dashboard');
 
+    // Import routes untuk data alat
+    Route::get('dataalat/import', [ImportAlatController::class, 'showImportForm'])
+        ->name('dataalat.import');
+    Route::post('dataalat/import', [ImportAlatController::class, 'import'])
+        ->name('dataalat.import.process');
+    Route::get('dataalat/import/template', [ImportAlatController::class, 'downloadTemplate'])
+        ->name('dataalat.import.template');
+
+        // Import & Export untuk data petugas
+    Route::get('datapetugas/import', [DataPetugasController::class, 'showImportForm'])
+        ->name('datapetugas.import');
+    Route::post('datapetugas/import', [DataPetugasController::class, 'import'])
+        ->name('datapetugas.import.process');
+    Route::get('datapetugas/import/template', [DataPetugasController::class, 'downloadTemplate'])
+        ->name('datapetugas.import.template');
+    Route::get('datapetugas/export', [DataPetugasController::class, 'export'])
+        ->name('datapetugas.export');
+    
+            // Import & Export untuk data peminjam
+    Route::get('datapeminjam/import', [DataPeminjamController::class, 'showImportForm'])
+        ->name('datapeminjam.import');
+    Route::post('datapeminjam/import', [DataPeminjamController::class, 'import'])
+        ->name('datapeminjam.import.process');
+    Route::get('datapeminjam/import/template', [DataPeminjamController::class, 'downloadTemplate'])
+        ->name('datapeminjam.import.template');
+    Route::get('datapeminjam/export', [DataPeminjamController::class, 'export'])
+        ->name('datapeminjam.export');
+
+
     Route::resource('datapeminjam', DataPeminjamController::class);
     Route::resource('datapetugas', DataPetugasController::class);
     Route::get('dataperkelas', [DataPerkelasController::class, 'index'])->name('dataperkelas.index');
+    Route::post('datakategori/store-many', [KategoriController::class, 'storeMany'])
+         ->name('datakategori.storeMany');
     Route::resource('datakategori', KategoriController::class);
     Route::resource('dataalat', DataAlatController::class);
     Route::get('logaktivitas', [LogAktivitasController::class, 'index'])
         ->name('logaktivitas.index');
 
-        // Import routes
-Route::get('/admin/datapeminjam/import', [UserImportController::class, 'showImportForm'])
-    ->name('admin.datapeminjam.import');
-Route::post('/admin/datapeminjam/import', [UserImportController::class, 'import'])
-    ->name('admin.datapeminjam.import.process');
-Route::get('/admin/datapeminjam/import/template', [UserImportController::class, 'downloadTemplate'])
-    ->name('admin.datapeminjam.import.template');
 });
 
 

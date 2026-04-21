@@ -41,9 +41,9 @@
         </button>
 
         <!-- PROFILE -->
-        <div class="flex items-center gap-3 bg-slate-100 px-3 py-2 rounded-xl cursor-pointer">
+        <div class="flex items-center gap-3 px-3 py-2 rounded-xl">
 
-            <img src="https://i.pravatar.cc/40"
+            <img src="{{ asset('profile.svg') }}" alt="Profile Picture"
                  class="w-9 h-9 rounded-full object-cover">
 
             <div class="leading-tight hidden sm:block">

@@ -22,7 +22,7 @@
 
 </head>
 
-<body class="min-h-screen relative overflow-x-hidden fixed inset-0 -z-20
+<body class="min-h-screen flex flex-col relative overflow-x-hidden fixed inset-0 -z-20
     bg-gradient-to-br
     from-blue-200
     via-blue-300
@@ -161,5 +161,6 @@ overlay.addEventListener('click', () => {
 
 
 @stack('scripts')
+    @yield('scripts')
 </body>
 </html>

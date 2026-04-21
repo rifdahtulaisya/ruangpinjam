@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
-<body class="min-h-screen relative overflow-x-hidden fixed inset-0 -z-20
+<body class="min-h-screen flex flex-col relative overflow-x-hidden fixed inset-0 -z-20
     bg-gradient-to-br
     from-emerald-200
     via-emerald-300
@@ -158,5 +158,6 @@ overlay.addEventListener('click', () => {
 
 
 @stack('scripts')
+    @yield('scripts')
 </body>
 </html>
